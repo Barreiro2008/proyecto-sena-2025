@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'conexion.php';
+
 if (!isset($_SESSION['usuario'])) {
     header("Location: login.php");
     exit();
@@ -51,14 +52,12 @@ try {
         * {
             box-sizing: border-box;
         }
-
         body.jm-body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
         }
-
         .jm-sidebar {
             width: 260px;
             height: 100vh;
@@ -73,14 +72,12 @@ try {
             flex-direction: column;
             z-index: 1000;
         }
-
         .jm-sidebar-header {
             margin-bottom: 30px;
             text-align: center;
             padding-bottom: 20px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-
         .jm-logo {
             font-size: 26px;
             font-weight: 700;
@@ -88,17 +85,14 @@ try {
             margin-bottom: 5px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-
         .jm-menu {
             list-style: none;
             padding: 0;
             width: 100%;
         }
-
         .jm-menu li {
             margin-bottom: 5px;
         }
-
         .jm-menu-title {
             margin-top: 25px;
             margin-bottom: 10px;
@@ -113,12 +107,10 @@ try {
             gap: 8px;
             letter-spacing: 1px;
         }
-
         .jm-menu-title img {
             width: 18px;
             height: 18px;
         }
-
         .jm-link {
             color: white;
             text-decoration: none;
@@ -130,7 +122,6 @@ try {
             font-weight: 500;
             margin-bottom: 3px;
         }
-
         .jm-link:hover, .jm-link.active {
             background: rgba(255, 255, 255, 0.2);
             text-decoration: none;
@@ -138,13 +129,11 @@ try {
             transform: translateX(5px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         .jm-main {
             margin-left: 260px;
             padding: 30px;
             min-height: 100vh;
         }
-
         /* Navbar mejorado */
         .jm-navbar {
             background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
@@ -157,12 +146,10 @@ try {
             justify-content: space-between;
             align-items: center;
         }
-
         .jm-navbar-left {
             display: flex;
             flex-direction: column;
         }
-
         .jm-navbar-left h2 {
             margin: 0;
             font-size: 26px;
@@ -171,30 +158,25 @@ try {
             align-items: center;
             gap: 12px;
         }
-
         .jm-navbar-left p {
             margin: 5px 0 0 0;
             font-size: 15px;
             opacity: 0.9;
         }
-
         .jm-navbar-right {
             text-align: right;
             display: flex;
             flex-direction: column;
         }
-
         .jm-time {
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 5px;
         }
-
         .jm-date {
             font-size: 14px;
             opacity: 0.9;
         }
-
         /* Estadísticas - MÁS BONITAS */
         .jm-estadisticas {
             display: grid;
@@ -202,21 +184,19 @@ try {
             gap: 30px;
             margin-bottom: 35px;
         }
-
         .jm-stat-card {
             background: linear-gradient(145deg, #ffffff, #f0f0f0);
             padding: 30px;
             border-radius: 25px;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+               inset 0 1px 0 rgba(255, 255, 255, 0.6);
             text-align: center;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.8);
         }
-
         .jm-stat-card::before {
             content: '';
             position: absolute;
@@ -227,7 +207,6 @@ try {
             background: linear-gradient(90deg, #FF8C00, #FFA500, #FFD700);
             border-radius: 25px 25px 0 0;
         }
-
         .jm-stat-card::after {
             content: '';
             position: absolute;
@@ -240,25 +219,21 @@ try {
             transition: all 0.6s;
             opacity: 0;
         }
-
         .jm-stat-card:hover::after {
             animation: shine 0.8s ease-in-out;
         }
-
         @keyframes shine {
             0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
             50% { opacity: 1; }
             100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
         }
-
         .jm-stat-card:hover {
             transform: translateY(-20px) scale(1.05);
-            box-shadow: 
+            box-shadow:
                 0 30px 60px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 140, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+               0 0 0 1px rgba(255, 140, 0, 0.1),
+               inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
-
         .jm-stat-icon {
             position: relative;
             display: inline-flex;
@@ -271,12 +246,11 @@ try {
             margin-bottom: 25px;
             color: white;
             font-size: 32px;
-            box-shadow: 
+            box-shadow:
                 0 15px 30px rgba(255, 140, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+               inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transition: all 0.4s ease;
         }
-
         .jm-stat-icon::after {
             content: '';
             position: absolute;
@@ -286,7 +260,6 @@ try {
             border: 3px solid rgba(255, 140, 0, 0.3);
             animation: pulse 3s infinite;
         }
-
         @keyframes pulse {
             0% {
                 transform: scale(1);
@@ -297,14 +270,12 @@ try {
                 opacity: 0;
             }
         }
-
         .jm-stat-card:hover .jm-stat-icon {
             transform: scale(1.1) rotate(10deg);
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(255, 140, 0, 0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+               inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
-
         .jm-stat-number {
             font-size: 42px;
             font-weight: 800;
@@ -314,7 +285,6 @@ try {
             display: inline-block;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .jm-stat-label {
             font-size: 16px;
             color: #666;
@@ -323,40 +293,35 @@ try {
             letter-spacing: 1.5px;
             position: relative;
         }
-
         /* Alerta de stock bajo - MÁS LLAMATIVA */
         .jm-alert-stock::before {
             background: linear-gradient(90deg, #ff4757, #ff6b6b, #ff8a80);
         }
-
         .jm-alert-stock .jm-stat-icon {
             background: linear-gradient(135deg, #ff4757, #ff6b6b);
-            box-shadow: 
+            box-shadow:
                 0 15px 30px rgba(255, 71, 87, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+               inset 0 1px 0 rgba(255, 255, 255, 0.3);
             animation: alertPulse 2s infinite;
         }
-
         @keyframes alertPulse {
             0%, 100% { 
                 transform: scale(1);
-                box-shadow: 
-                    0 15px 30px rgba(255, 71, 87, 0.5),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+               box-shadow:
+                   0 15px 30px rgba(255, 71, 87, 0.5),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.3);
             }
             50% { 
                 transform: scale(1.1);
-                box-shadow: 
-                    0 20px 40px rgba(255, 71, 87, 0.7),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+               box-shadow:
+                   0 20px 40px rgba(255, 71, 87, 0.7),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.4);
             }
         }
-
         /* Accesos Rápidos - MÁS BONITOS */
         .jm-accesos-rapidos {
             margin-bottom: 40px;
         }
-
         .jm-accesos-rapidos h3 {
             font-size: 24px;
             font-weight: 700;
@@ -366,7 +331,6 @@ try {
             position: relative;
             padding-bottom: 20px;
         }
-
         .jm-accesos-rapidos h3::after {
             content: '';
             position: absolute;
@@ -379,13 +343,11 @@ try {
             border-radius: 2px;
             box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
         }
-
         .jm-acciones-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 30px;
         }
-
         .jm-accion-card {
             background: linear-gradient(145deg, #ffffff, #f0f0f0);
             border-radius: 25px;
@@ -394,9 +356,9 @@ try {
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none;
             color: #333;
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+               inset 0 1px 0 rgba(255, 255, 255, 0.6);
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.8);
@@ -404,7 +366,6 @@ try {
             flex-direction: column;
             align-items: center;
         }
-
         .jm-accion-card::before {
             content: '';
             position: absolute;
@@ -418,7 +379,6 @@ try {
             transition: opacity 0.5s ease;
             border-radius: 25px;
         }
-
         .jm-accion-card::after {
             content: '';
             position: absolute;
@@ -431,29 +391,24 @@ try {
             transition: all 0.6s;
             opacity: 0;
         }
-
         .jm-accion-card:hover::after {
             animation: shine 0.8s ease-in-out;
         }
-
         .jm-accion-card:hover {
             transform: translateY(-20px) scale(1.05);
-            box-shadow: 
+            box-shadow:
                 0 30px 60px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 140, 0, 0.2);
+               0 0 0 1px rgba(255, 140, 0, 0.2);
             color: white;
             text-decoration: none;
         }
-
         .jm-accion-card:hover::before {
             opacity: 1;
         }
-
         .jm-accion-card:hover .jm-accion-titulo,
         .jm-accion-card:hover .jm-accion-desc {
             color: white;
         }
-
         .jm-accion-icon {
             position: relative;
             display: inline-flex;
@@ -467,20 +422,18 @@ try {
             color: #FF8C00;
             font-size: 36px;
             transition: all 0.5s ease;
-            box-shadow: 
+            box-shadow:
                 0 10px 30px rgba(0, 0, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+               inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
-
         .jm-accion-card:hover .jm-accion-icon {
             background: linear-gradient(145deg, #ffffff, #f8f9fa);
             transform: scale(1.15) rotate(15deg);
-            box-shadow: 
+            box-shadow:
                 0 15px 40px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+               inset 0 1px 0 rgba(255, 255, 255, 0.9);
             color: #FF8C00;
         }
-
         .jm-accion-titulo {
             font-size: 19px;
             font-weight: 700;
@@ -488,21 +441,18 @@ try {
             transition: color 0.5s ease;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
-
         .jm-accion-desc {
             font-size: 14px;
             color: #6c757d;
             transition: color 0.5s ease;
             line-height: 1.5;
         }
-
         /* Botón de cerrar sesión - SÚPER BONITO */
         .jm-logout-section {
             display: flex;
             justify-content: center;
             margin: 50px 0;
         }
-
         .jm-btn-logout {
             background: linear-gradient(145deg, #ffffff, #f0f0f0);
             border-radius: 25px;
@@ -515,16 +465,15 @@ try {
             align-items: center;
             gap: 15px;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 
+            box-shadow:
                 0 15px 35px rgba(220, 53, 69, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+               inset 0 1px 0 rgba(255, 255, 255, 0.6);
             border: 2px solid rgba(220, 53, 69, 0.2);
             position: relative;
             overflow: hidden;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
         .jm-btn-logout::before {
             content: '';
             position: absolute;
@@ -538,7 +487,6 @@ try {
             transition: opacity 0.5s ease;
             border-radius: 25px;
         }
-
         .jm-btn-logout::after {
             content: '';
             position: absolute;
@@ -551,44 +499,255 @@ try {
             transition: all 0.6s;
             opacity: 0;
         }
-
         .jm-btn-logout:hover::after {
             animation: shine 0.8s ease-in-out;
         }
-
         .jm-btn-logout:hover {
             transform: translateY(-8px) scale(1.05);
-            box-shadow: 
+            box-shadow:
                 0 25px 50px rgba(220, 53, 69, 0.4),
-                0 0 0 1px rgba(220, 53, 69, 0.3);
+               0 0 0 1px rgba(220, 53, 69, 0.3);
             color: white;
             text-decoration: none;
         }
-
         .jm-btn-logout:hover::before {
             opacity: 1;
         }
-
         .jm-btn-logout i {
             font-size: 20px;
             transition: transform 0.3s ease;
         }
-
         .jm-btn-logout:hover i {
             transform: rotate(10deg) scale(1.1);
         }
 
-        /* Footer */
+        /* FOOTER MEJORADO - SÚPER BONITO */
         .jm-footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            color: white;
+            margin-top: 60px;
+            border-radius: 25px 25px 0 0;
+            box-shadow: 
+                0 -10px 40px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jm-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #FF8C00, #FFA500, #FFD700, #FFA500, #FF8C00);
+            background-size: 200% 100%;
+            animation: gradientMove 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .jm-footer-content {
+            padding: 50px 40px 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .jm-footer-section {
             text-align: center;
-            padding: 25px;
-            margin-top: 40px;
+        }
+
+        .jm-footer-section h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #FFD700;
+            position: relative;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .jm-footer-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #FF8C00, #FFA500);
+            border-radius: 2px;
+        }
+
+        .jm-footer-info {
+            line-height: 1.8;
+            color: #bdc3c7;
+            font-size: 15px;
+        }
+
+        .jm-footer-info p {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .jm-footer-info i {
+            color: #FFA500;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .jm-footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .jm-footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .jm-footer-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .jm-footer-links a:hover {
+            color: #FFD700;
+            background: rgba(255, 165, 0, 0.1);
+            transform: translateX(5px);
+            text-decoration: none;
+        }
+
+        .jm-footer-links i {
+            color: #FFA500;
+            font-size: 16px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .jm-social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .jm-social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 50%;
+            color: #bdc3c7;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jm-social-link::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease;
+            border-radius: 50%;
+        }
+
+        .jm-social-link:hover {
+            transform: translateY(-8px) scale(1.1);
+            color: white;
+            text-decoration: none;
+            box-shadow: 
+                0 15px 30px rgba(255, 140, 0, 0.4),
+                0 0 0 1px rgba(255, 140, 0, 0.2);
+        }
+
+        .jm-social-link:hover::before {
+            opacity: 1;
+        }
+
+        .jm-footer-bottom {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 30px;
+        }
+
+        .jm-footer-bottom p {
+            margin: 0;
+            color: #95a5a6;
             font-size: 14px;
-            color: #6c757d;
-            border-top: 2px solid #f1f3f4;
-            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .jm-footer-bottom i {
+            color: #e74c3c;
+            animation: heartbeat 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .jm-footer-version {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            color: #7f8c8d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .jm-version-badge {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            padding: 4px 12px;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
         }
 
         /* Responsive */
@@ -621,8 +780,28 @@ try {
             .jm-navbar-right {
                 text-align: center;
             }
-        }
 
+            .jm-footer-content {
+                padding: 40px 20px 20px;
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .jm-footer-bottom {
+                padding: 20px;
+            }
+
+            .jm-footer-bottom p {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .jm-footer-version {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
         /* Animación de contadores */
         .counter {
             display: inline-block;
@@ -631,8 +810,8 @@ try {
     </style>
 </head>
 <body class="jm-body">
-    <?php  include 'sidebarindex.php';  ?>
-
+    <?php include 'sidebarindex.php'; ?>
+    
     <div class="jm-main">
         <!-- Navbar mejorado con bienvenida y hora/fecha -->
         <div class="jm-navbar">
@@ -679,11 +858,11 @@ try {
         <div class="jm-accesos-rapidos">
             <h3>Accesos Rápidos</h3>
             <div class="jm-acciones-grid">
-                    <a href="gestion/gestion_producto.php" class="jm-accion-card">
-                        <div class="jm-accion-icon"><i class="fas fa-box-open"></i></div>
-                        <div class="jm-accion-titulo">Gestión de Productos</div>
-                        <div class="jm-accion-desc">Administrar inventario y productos</div>
-                    </a>
+                <a href="gestion/gestion_producto.php" class="jm-accion-card">
+                    <div class="jm-accion-icon"><i class="fas fa-box-open"></i></div>
+                    <div class="jm-accion-titulo">Gestión de Productos</div>
+                    <div class="jm-accion-desc">Administrar inventario y productos</div>
+                </a>
                 <a href="gestion/gestion_lote.php" class="jm-accion-card">
                     <div class="jm-accion-icon"><i class="fas fa-cubes"></i></div>
                     <div class="jm-accion-titulo">Gestión de Lotes</div>
@@ -722,8 +901,56 @@ try {
             </a>
         </div>
 
+        <!-- FOOTER MEJORADO -->
         <footer class="jm-footer">
-            © 2025 Variedades Juanmarc. Todos los derechos reservados.
+            <div class="jm-footer-content">
+                <!-- Información de la empresa -->
+                <div class="jm-footer-section">
+                    <h4><i class="fas fa-store"></i> Variedades Juanmarc</h4>
+                    <div class="jm-footer-info">
+                        <p><i class="fas fa-map-marker-alt"></i> Carrera 3A No 1A 40, Teruel Huila</p>
+                        <p><i class="fas fa-phone"></i> +57 322 709 7033</p>
+                        <p><i class="fas fa-clock"></i> Lun - Dom: 7:00 AM - 10:00 PM</p>
+                    </div>
+                </div>
+
+                <!-- Enlaces útiles -->
+                <div class="jm-footer-section">
+                    <h4><i class="fas fa-link"></i> Enlaces Útiles</h4>
+                    <ul class="jm-footer-links">
+                        <li><a href="gestion/gestion_producto.php"><i class="fas fa-box"></i> Productos</a></li>
+                        <li><a href="gestion/listar_ventas.php"><i class="fas fa-chart-bar"></i> Reportes</a></li>
+                        <li><a href="gestion/gestion_proveedor.php"><i class="fas fa-truck"></i> Proveedores</a></li>
+                        <li><a href="gestion/datos_personales.php"><i class="fas fa-user-cog"></i> Mi Perfil</a></li>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Ayuda</a></li>
+                    </ul>
+                </div>
+
+                <!-- Redes sociales y contacto -->
+                <div class="jm-footer-section">
+                    <h4><i class="fas fa-share-alt"></i>Contacto de los Desarrolladores</h4>
+                    <div class="jm-footer-info">
+                        <p>Mantente conectado con nosotros</p>
+                    </div>
+                    <div class="jm-social-links">
+        
+                        <a href="https://wa.me/573227097033?text=Hola%2C%20estoy%20interesado%20en%20más%20información" class="jm-social-link" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="jm-footer-bottom">
+                <p>
+                    <i class="fas fa-heart"></i>
+                    © 2025 Variedades Juanmarc. Todos los derechos reservados.
+                </p>
+                <div class="jm-footer-version">
+                    <span>Sistema de Gestión de Inventario</span>
+                    <span class="jm-version-badge">v1.0</span>
+                </div>
+            </div>
         </footer>
     </div>
 

@@ -70,6 +70,7 @@ if (!empty($busqueda)) {
     $busqueda_param = "%" . $busqueda . "%";
     $stmt->bindParam(':busqueda', $busqueda_param, PDO::PARAM_STR);
 }
+
 // Bindear los parámetros para LIMIT y OFFSET
 $stmt->bindParam(':inicio', $indice_inicio, PDO::PARAM_INT);
 $stmt->bindParam(':cantidad', $productos_por_pagina, PDO::PARAM_INT);
@@ -78,17 +79,17 @@ $stmt->bindParam(':cantidad', $productos_por_pagina, PDO::PARAM_INT);
 $stmt->execute();
 $productos = $stmt->fetchAll();
 
-// Procesar la adición al carrito
+// CORREGIDO: Procesar la adición al carrito
 if (isset($_POST['agregar_carrito'])) {
     $producto_id = $_POST['producto_id'];
     $cantidad = intval($_POST['cantidad']);
-
+    
     // Verificar si el producto existe y tiene suficiente stock
     $stmt_producto = $pdo->prepare("SELECT id, nombre, precio, stock FROM productos WHERE id = :id");
     $stmt_producto->bindParam(':id', $producto_id);
     $stmt_producto->execute();
     $producto = $stmt_producto->fetch();
-
+    
     if ($producto && $cantidad > 0 && $producto['stock'] >= $cantidad) {
         if (isset($_SESSION['carrito'][$producto_id])) {
             $_SESSION['carrito'][$producto_id]['cantidad'] += $cantidad;
@@ -136,39 +137,40 @@ if (isset($_POST['realizar_venta'])) {
     if (!empty($_SESSION['carrito'])) {
         try {
             $pdo->beginTransaction();
-
+            
             // Insertar la venta en la tabla 'ventas'
             $stmt_venta = $pdo->prepare("INSERT INTO ventas (usuario_id, total_venta) VALUES (:usuario_id, :total_venta)");
             $stmt_venta->bindParam(':usuario_id', $_SESSION['usuario_id']);
+            
             $total_venta = 0;
             foreach ($_SESSION['carrito'] as $item) {
                 $total_venta += $item['precio'] * $item['cantidad'];
             }
             $stmt_venta->bindParam(':total_venta', $total_venta);
             $stmt_venta->execute();
+            
             $venta_id = $pdo->lastInsertId();
-
+            
             // Insertar los detalles de la venta en la tabla 'detalles_venta' y actualizar el stock
             $stmt_detalle = $pdo->prepare("INSERT INTO detalles_venta (venta_id, producto_id, cantidad, precio_unitario) VALUES (:venta_id, :producto_id, :cantidad, :precio_unitario)");
             $stmt_actualizar_stock = $pdo->prepare("UPDATE productos SET stock = stock - :cantidad WHERE id = :id");
-
+            
             foreach ($_SESSION['carrito'] as $producto_id => $item) {
                 $stmt_detalle->bindParam(':venta_id', $venta_id);
                 $stmt_detalle->bindParam(':producto_id', $producto_id);
                 $stmt_detalle->bindParam(':cantidad', $item['cantidad']);
                 $stmt_detalle->bindParam(':precio_unitario', $item['precio']);
                 $stmt_detalle->execute();
-
+                
                 $stmt_actualizar_stock->bindParam(':cantidad', $item['cantidad']);
                 $stmt_actualizar_stock->bindParam(':id', $producto_id);
                 $stmt_actualizar_stock->execute();
             }
-
+            
             $pdo->commit();
             $_SESSION['carrito'] = array(); // Limpiar el carrito después de la venta
             header("Location: listar_ventas.php?mensaje=Venta+realizada+con+éxito");
             exit();
-
         } catch (PDOException $e) {
             $pdo->rollBack();
             header("Location: gestion_producto.php?error=Error+al+realizar+la+venta:+" . $e->getMessage());
@@ -203,14 +205,12 @@ if (!empty($_SESSION['carrito'])) {
         * {
             box-sizing: border-box;
         }
-
         body.jm-body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
         }
-
         .jm-sidebar {
             width: 260px;
             height: 100vh;
@@ -225,14 +225,12 @@ if (!empty($_SESSION['carrito'])) {
             flex-direction: column;
             z-index: 1000;
         }
-
         .jm-sidebar-header {
             margin-bottom: 30px;
             text-align: center;
             padding-bottom: 20px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.2);
         }
-
         .jm-logo {
             font-size: 26px;
             font-weight: 700;
@@ -240,17 +238,14 @@ if (!empty($_SESSION['carrito'])) {
             margin-bottom: 5px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-
         .jm-menu {
             list-style: none;
             padding: 0;
             width: 100%;
         }
-
         .jm-menu li {
             margin-bottom: 5px;
         }
-
         .jm-menu-title {
             margin-top: 25px;
             margin-bottom: 10px;
@@ -265,12 +260,10 @@ if (!empty($_SESSION['carrito'])) {
             gap: 8px;
             letter-spacing: 1px;
         }
-
         .jm-menu-title img {
             width: 18px;
             height: 18px;
         }
-
         .jm-link {
             color: white;
             text-decoration: none;
@@ -282,7 +275,6 @@ if (!empty($_SESSION['carrito'])) {
             font-weight: 500;
             margin-bottom: 3px;
         }
-
         .jm-link:hover, .jm-link.active {
             background: rgba(255, 255, 255, 0.2);
             text-decoration: none;
@@ -290,13 +282,11 @@ if (!empty($_SESSION['carrito'])) {
             transform: translateX(5px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         .jm-main {
             margin-left: 260px;
             padding: 30px;
             min-height: 100vh;
         }
-
         .jm-navbar {
             background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
             color: white;
@@ -308,13 +298,11 @@ if (!empty($_SESSION['carrito'])) {
             justify-content: space-between;
             align-items: center;
         }
-
         .jm-navbar h2 {
             margin: 0;
             font-size: 24px;
             font-weight: 600;
         }
-
         .jm-cart {
             position: relative;
             background: rgba(255, 255, 255, 0.2);
@@ -322,17 +310,14 @@ if (!empty($_SESSION['carrito'])) {
             border-radius: 10px;
             transition: all 0.3s ease;
         }
-
         .jm-cart:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
-
         .jm-cart img {
             width: 28px;
             height: 28px;
         }
-
         .jm-cart-badge {
             position: absolute;
             top: -5px;
@@ -347,18 +332,18 @@ if (!empty($_SESSION['carrito'])) {
             text-align: center;
             box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
         }
-
         .jm-buscar {
             background: white;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             margin-bottom: 25px;
+        }
+        .jm-buscar form {
             display: flex;
             gap: 15px;
             align-items: center;
         }
-
         .jm-buscar input {
             flex: 1;
             padding: 12px 18px;
@@ -368,14 +353,12 @@ if (!empty($_SESSION['carrito'])) {
             transition: all 0.3s ease;
             background: #f8f9fa;
         }
-
         .jm-buscar input:focus {
             outline: none;
             border-color: #FFA500;
             background: white;
             box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
         }
-
         .jm-buscar button {
             padding: 12px 25px;
             background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
@@ -388,17 +371,14 @@ if (!empty($_SESSION['carrito'])) {
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
         }
-
         .jm-buscar button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
         }
-
         .jm-contenedor-botones {
             margin-bottom: 25px;
             text-align: right;
         }
-
         .btn-agregar {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
@@ -415,14 +395,12 @@ if (!empty($_SESSION['carrito'])) {
             gap: 8px;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
-
         .btn-agregar:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
             text-decoration: none;
             color: white;
         }
-
         /* TABLA MODERNA */
         .jm-tabla-container {
             background: white;
@@ -431,18 +409,15 @@ if (!empty($_SESSION['carrito'])) {
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
-
         .jm-tabla {
             width: 100%;
             margin: 0;
             border-collapse: collapse;
             font-size: 14px;
         }
-
         .jm-tabla thead {
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
         }
-
         .jm-tabla th {
             padding: 20px 15px;
             text-align: center;
@@ -453,30 +428,25 @@ if (!empty($_SESSION['carrito'])) {
             letter-spacing: 1px;
             border: none;
         }
-
         .jm-tabla tbody tr {
             transition: all 0.3s ease;
             border-bottom: 1px solid #f1f3f4;
         }
-
         .jm-tabla tbody tr:hover {
             background: #f8f9fa;
             transform: scale(1.01);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         /* FILA CON STOCK BAJO - ROJO SUAVE */
         .jm-tabla tbody tr.stock-bajo-fila {
             background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
             border-left: 4px solid #e74c3c;
         }
-
         .jm-tabla tbody tr.stock-bajo-fila:hover {
             background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%);
             transform: scale(1.01);
             box-shadow: 0 4px 20px rgba(231, 76, 60, 0.2);
         }
-
         .jm-tabla td {
             padding: 18px 15px;
             text-align: center;
@@ -484,24 +454,20 @@ if (!empty($_SESSION['carrito'])) {
             border: none;
             font-weight: 500;
         }
-
         .jm-tabla td:first-child {
             font-weight: 700;
             color: #6c757d;
         }
-
         .jm-tabla td:nth-child(2) {
             text-align: left;
             font-weight: 600;
             color: #2c3e50;
         }
-
         .precio-cell {
             font-weight: 700;
             color: #27ae60;
             font-size: 15px;
         }
-
         .stock-numero {
             display: inline-flex;
             align-items: center;
@@ -511,29 +477,24 @@ if (!empty($_SESSION['carrito'])) {
             font-weight: 700;
             font-size: 13px;
         }
-
         .stock-normal {
             background: #d4edda;
             color: #155724;
         }
-
         .stock-bajo {
             background: #f8d7da;
             color: #721c24;
         }
-
         .alerta-stock {
             color: #e74c3c;
             font-size: 14px;
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
-
         /* BOTONES DE ACCIÓN */
         .jm-gestion-acciones {
             display: flex;
@@ -542,7 +503,6 @@ if (!empty($_SESSION['carrito'])) {
             align-items: center;
             flex-wrap: wrap;
         }
-
         .btn-accion {
             padding: 8px 12px;
             border-radius: 8px;
@@ -557,41 +517,34 @@ if (!empty($_SESSION['carrito'])) {
             align-items: center;
             gap: 4px;
         }
-
         .btn-editar {
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
         }
-
         .btn-editar:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
             color: white;
             text-decoration: none;
         }
-
         .btn-eliminar {
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
             box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
         }
-
         .btn-eliminar:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
             color: white;
             text-decoration: none;
         }
-
         .btn-agregar-carrito {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
         }
-
         .btn-agregar-carrito:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
         }
-
         /* BOTÓN WHATSAPP MEJORADO */
         .btn-whatsapp {
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
@@ -609,14 +562,12 @@ if (!empty($_SESSION['carrito'])) {
             gap: 4px;
             box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
         }
-
         .btn-whatsapp:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
             color: white;
             text-decoration: none;
         }
-
         .btn-whatsapp:disabled {
             background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
             color: #6c757d;
@@ -624,12 +575,10 @@ if (!empty($_SESSION['carrito'])) {
             box-shadow: none;
             transform: none;
         }
-
         .btn-whatsapp:disabled:hover {
             transform: none;
             box-shadow: none;
         }
-
         .cantidad-input {
             width: 50px;
             padding: 4px 8px;
@@ -639,13 +588,11 @@ if (!empty($_SESSION['carrito'])) {
             font-weight: 600;
             transition: all 0.3s ease;
         }
-
         .cantidad-input:focus {
             outline: none;
             border-color: #FFA500;
             box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
         }
-
         /* CARRITO MEJORADO */
         .jm-carrito-resumen {
             background: white;
@@ -654,7 +601,6 @@ if (!empty($_SESSION['carrito'])) {
             margin-top: 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
-
         .jm-carrito-resumen h3 {
             color: #FFA500;
             margin-bottom: 20px;
@@ -662,7 +608,6 @@ if (!empty($_SESSION['carrito'])) {
             font-weight: 700;
             font-size: 22px;
         }
-
         .jm-carrito-item {
             display: flex;
             justify-content: space-between;
@@ -671,13 +616,11 @@ if (!empty($_SESSION['carrito'])) {
             border-bottom: 1px solid #f1f3f4;
             transition: all 0.3s ease;
         }
-
         .jm-carrito-item:hover {
             background: #f8f9fa;
             padding-left: 10px;
             border-radius: 10px;
         }
-
         .jm-carrito-total {
             margin-top: 20px;
             padding-top: 20px;
@@ -687,7 +630,6 @@ if (!empty($_SESSION['carrito'])) {
             font-size: 18px;
             color: #2c3e50;
         }
-
         .jm-formulario-carrito {
             margin-top: 25px;
             text-align: right;
@@ -695,7 +637,6 @@ if (!empty($_SESSION['carrito'])) {
             gap: 15px;
             justify-content: flex-end;
         }
-
         .jm-formulario-carrito button {
             background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
             color: white;
@@ -708,12 +649,10 @@ if (!empty($_SESSION['carrito'])) {
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
         }
-
         .jm-formulario-carrito button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
         }
-
         /* PAGINACIÓN MEJORADA */
         .pagination {
             margin-top: 25px;
@@ -721,7 +660,6 @@ if (!empty($_SESSION['carrito'])) {
             justify-content: center;
             gap: 5px;
         }
-
         .pagination a {
             color: #FFA500;
             padding: 10px 15px;
@@ -732,21 +670,18 @@ if (!empty($_SESSION['carrito'])) {
             transition: all 0.3s ease;
             background: white;
         }
-
         .pagination a:hover {
             background: #FFA500;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
         }
-
         .pagination a.active {
             background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
             color: white;
             border-color: #FFA500;
             box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
         }
-
         /* FOOTER */
         .jm-footer {
             text-align: center;
@@ -759,7 +694,6 @@ if (!empty($_SESSION['carrito'])) {
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-
         /* ALERTAS MEJORADAS */
         .alert {
             border-radius: 15px;
@@ -769,17 +703,14 @@ if (!empty($_SESSION['carrito'])) {
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         .alert-success {
             background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
         }
-
         .alert-danger {
             background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
         }
-
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .jm-sidebar {
@@ -806,43 +737,8 @@ if (!empty($_SESSION['carrito'])) {
     </style>
 </head>
 <body class="jm-body">
-    <div class="jm-sidebar">
-        <div class="jm-sidebar-header">
-            <div class="jm-logo">Variedades Juanmarc</div>
-        </div>
-        <ul class="jm-menu">
-            <li class="jm-menu-title">
-                <img src="https://img.icons8.com/ios-filled/20/ffffff/user.png" alt="icono usuario">
-                Usuario
-            </li>
-            <li><a href="datos_personales.php" class="jm-link"><i class="fas fa-user mr-2"></i> Datos personales</a></li>
-            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_usuario.php" class="jm-link"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
-            <?php endif; ?>
-
-            <li class="jm-menu-title">
-                <img src="https://img.icons8.com/ios-filled/20/ffffff/sales-performance.png" alt="icono ventas">
-                Ventas
-            </li>
-            <li><a href="listar_ventas.php" class="jm-link"><i class="fas fa-chart-line mr-2"></i> Listar Ventas</a></li>
-
-            <li class="jm-menu-title">
-                <img src="https://img.icons8.com/ios-filled/20/ffffff/warehouse.png" alt="icono almacen">
-                Almacén
-            </li>
-                <li><a href="gestion_producto.php" class="jm-link active"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
-            <li><a href="gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
-
-            <li class="jm-menu-title">
-                <img src="https://img.icons8.com/ios-filled/20/ffffff/supplier.png" alt="icono compras">
-                Compras
-            </li>
-            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
-            <?php endif; ?>
-        </ul>
-    </div>
-
+    <?php include 'sidebar.php'; ?>
+    
     <div class="jm-main">
         <div class="jm-navbar">
             <h2>Gestión de Productos</h2>
@@ -854,9 +750,12 @@ if (!empty($_SESSION['carrito'])) {
 
         <?php echo $mensaje; ?>
 
+        <!-- FORMULARIO DE BÚSQUEDA CORREGIDO -->
         <div class="jm-buscar">
-            <input type="text" placeholder="Buscar por nombre o proveedor" name="buscar" value="<?php echo htmlspecialchars($busqueda); ?>">
-            <button><i class="fas fa-search mr-2"></i> Buscar</button>
+            <form method="GET" action="">
+                <input type="text" placeholder="Buscar por nombre o proveedor" name="buscar" value="<?php echo htmlspecialchars($busqueda); ?>">
+                <button type="submit"><i class="fas fa-search mr-2"></i> Buscar</button>
+            </form>
         </div>
 
         <div class="jm-contenedor-botones">
@@ -896,9 +795,9 @@ if (!empty($_SESSION['carrito'])) {
                                 <td><?php echo htmlspecialchars($producto['nombre_proveedor'] ?: 'N/A'); ?></td>
                                 <td>
                                     <?php if ($producto['stock'] <= 10 && !empty($producto['telefono'])): ?>
-                                        <a href="javascript:void(0)" 
-                                           class="btn-whatsapp" 
-                                           onclick="contactarWhatsApp('<?php echo htmlspecialchars($producto['telefono']); ?>', '<?php echo htmlspecialchars($producto['nombre_producto']); ?>')">
+                                        <a href="javascript:void(0)"
+                                            class="btn-whatsapp"
+                                            onclick="contactarWhatsApp('<?php echo htmlspecialchars($producto['telefono']); ?>', '<?php echo htmlspecialchars($producto['nombre_producto']); ?>')">
                                             <i class="fab fa-whatsapp"></i> WhatsApp
                                         </a>
                                     <?php else: ?>
@@ -914,10 +813,11 @@ if (!empty($_SESSION['carrito'])) {
                                     <a href="eliminar_producto.php?id=<?php echo htmlspecialchars($producto['id']); ?>" class="btn-accion btn-eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')">
                                         <i class="fas fa-trash-alt"></i> Eliminar
                                     </a>
+                                    <!-- FORMULARIO CORREGIDO PARA AGREGAR AL CARRITO -->
                                     <form method="post" style="display:inline;">
                                         <input type="hidden" name="producto_id" value="<?php echo htmlspecialchars($producto['id']); ?>">
-                                        <input type="number" name="cantidad" value="1" min="1" class="cantidad-input">
-                                        <button type="submit" name="../agregar/agregar_carrito" class="btn-accion btn-agregar-carrito">
+                                        <input type="number" name="cantidad" value="1" min="1" max="<?php echo $producto['stock']; ?>" class="cantidad-input">
+                                        <button type="submit" name="agregar_carrito" class="btn-accion btn-agregar-carrito">
                                             <i class="fas fa-shopping-cart"></i> Agregar
                                         </button>
                                     </form>
@@ -937,11 +837,9 @@ if (!empty($_SESSION['carrito'])) {
                     <?php if ($pagina_actual > 1): ?>
                         <li><a href="?pagina=<?php echo ($pagina_actual - 1) . (!empty($busqueda) ? '&buscar=' . htmlspecialchars($busqueda) : ''); ?>">Anterior</a></li>
                     <?php endif; ?>
-
                     <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                         <li><a class="<?php echo ($i == $pagina_actual) ? 'active' : ''; ?>" href="?pagina=<?php echo $i . (!empty($busqueda) ? '&buscar=' . htmlspecialchars($busqueda) : ''); ?>"><?php echo $i; ?></a></li>
                     <?php endfor; ?>
-
                     <?php if ($pagina_actual < $total_paginas): ?>
                         <li><a href="?pagina=<?php echo ($pagina_actual + 1) . (!empty($busqueda) ? '&buscar=' . htmlspecialchars($busqueda) : ''); ?>">Siguiente</a></li>
                     <?php endif; ?>
@@ -1011,21 +909,6 @@ if (!empty($_SESSION['carrito'])) {
             // Abrir WhatsApp en una nueva ventana
             window.open(url, '_blank');
         }
-
-        // Efecto de búsqueda en tiempo real
-        document.querySelector('.jm-buscar input').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.jm-tabla tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
 
         // Animación de carga
         document.addEventListener('DOMContentLoaded', function() {

@@ -968,7 +968,7 @@ if (isset($_GET['error'])) {
                                     <i class="fab fa-whatsapp"></i> WhatsApp
                                 </a>
                             <?php endif; ?>
-                            <a href="editar_proveedor.php?id=<?php echo htmlspecialchars($proveedor['id']); ?>" class="jm-btn-accion jm-btn-editar">
+                            <a href="../editar/editar_proveedor.php?id=<?php echo htmlspecialchars($proveedor['id']); ?>" class="jm-btn-accion jm-btn-editar">
                                 <i class="fas fa-edit"></i> Editar
                             </a>
                             <a href="eliminar_proveedor.php?id=<?php echo htmlspecialchars($proveedor['id']); ?>" 

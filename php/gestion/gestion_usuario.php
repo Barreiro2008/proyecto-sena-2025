@@ -631,7 +631,7 @@ if (isset($_GET['error'])) {
         </div>
 
         <div class="jm-contenedor-botones">
-            <a href="agregar_usuario.php" class="btn-agregar">
+            <a href="../agregar/agregar_usuario.php" class="btn-agregar">
                 <i class="fas fa-user-plus"></i> Agregar Usuario
             </a>
         </div>
