@@ -1,0 +1,378 @@
+/* Estilo general del cuerpo */
+body {
+    background: linear-gradient(to right, #ff7043, #d84315); /* Gradiente atractivo */
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh; /* Asegura que la página ocupe toda la ventana */
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Alinea los elementos verticalmente */
+    color: #333;
+}
+
+/* Contenedor del formulario de inicio de sesión */
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px; /* Bordes redondeados */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: slideIn 0.8s ease-out;
+}
+
+/* Título del formulario */
+.login-container h2 {
+    color: #bf360c;
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 28px;
+}
+
+/* Estilo de los campos del formulario */
+.form-control {
+    border-radius: 50px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd; /* Borde suave */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); /* Sombra interna */
+    transition: border-color 0.3s ease;
+}
+
+/* Efecto al pasar el mouse sobre los campos */
+.form-control:focus {
+    border-color: #ff7043;
+    box-shadow: 0 0 8px rgba(255, 112, 67, 0.6);
+}
+
+/* Estilo del botón de login */
+.btn-login {
+    background-color: #ff7043;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    padding: 12px;
+    color: white;
+    transition: background-color 0.3s ease;
+    width: 100%; /* El botón ocupa todo el ancho del formulario */
+    text-transform: uppercase; /* Texto en mayúsculas para más énfasis */
+}
+
+/* Efecto al pasar el mouse sobre el botón */
+.btn-login:hover {
+    background-color: #d84315;
+}
+
+/* Imagen del logo */
+.logo {
+    display: block;
+    margin: 0 auto 20px;
+    width: 80px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* Efecto al pasar el mouse sobre el logo */
+.logo:hover {
+    transform: scale(1.1);
+}
+
+/* Enlaces adicionales debajo del formulario */
+.extra-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Estilo de los enlaces */
+.extra-links a {
+    color: #ff7043;
+    font-weight: 500;
+    text-decoration: none;
+    display: block;
+    margin-top: 10px;
+    transition: color 0.3s ease;
+}
+
+/* Efecto al pasar el mouse sobre los enlaces */
+.extra-links a:hover {
+    color: #bf360c;
+}
+
+/* Animación de entrada del contenedor */
+@keyframes slideIn {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Estilos para la tabla */
+.table-container {
+    width: 80%; /* Ajusta el ancho del contenedor */
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    background-color: #fff;
+    margin-bottom: 30px;
+}
+
+/* Estilo de las celdas y cabecera de la tabla */
+table th, table td {
+    padding: 16px;
+    text-align: left;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+/* Estilo de la cabecera de la tabla */
+table th {
+    background-color: #ff7043;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase; /* Hace los títulos de las columnas en mayúsculas */
+}
+
+/* Fila con fondo alterno */
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Efecto de hover en las filas */
+table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+/* Estilo de los botones de la tabla */
+.btn-table {
+    background-color: #ff7043;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-table:hover {
+    background-color: #d84315;
+}
+
+/* Paginación de la tabla */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #ff7043;
+    padding: 10px 15px;
+    text-decoration: none;
+    margin: 0 5px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #d84315;
+    color: white;
+}
+/* estilos_juanmarc.css */
+
+body.jm-body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    background: #f9f9f9;
+}
+
+.jm-sidebar {
+    width: 230px;
+    height: 100vh;
+    background-color: #FFA500; /* naranja */
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 20px 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.jm-sidebar-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.jm-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.jm-user {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.jm-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.jm-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.jm-menu li:hover {
+    background-color: #FFD700; /* amarillo */
+    color: #333;
+}
+
+.jm-main {
+    margin-left: 230px;
+    padding: 30px;
+}
+
+.jm-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFA500;
+    color: white;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 10px;
+}
+
+.jm-cart {
+    position: relative;
+}
+
+.jm-cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    border-radius: 50%;
+    padding: 2px 6px;
+}
+
+.jm-alerta {
+    background: red;
+    color: white;
+    padding: 10px;
+    margin: 20px 0;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.jm-tabla {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.jm-tabla th {
+    background: #d6ffe0;
+    text-align: center;
+}
+
+.jm-tabla td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.jm-riesgo {
+    background-color: #ffcccc;
+}
+
+.jm-advertencia {
+    background-color: #fff3cd;
+}
+
+.jm-buscar {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.jm-buscar input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.jm-buscar button {
+    padding: 8px 20px;
+    background: #FFA500;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.jm-buscar button:hover {
+    background: #e69500;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
+}
+.jm-menu-title {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+    padding-left: 10px;
+    border-left: 4px solid #FFD700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jm-menu-title img {
+    width: 20px;
+    height: 20px;
+}
+.jm-link {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 8px 16px;
+}
+
+.jm-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+
