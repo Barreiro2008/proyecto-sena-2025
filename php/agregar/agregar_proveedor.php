@@ -1,58 +1,33 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
-// Verificar si el usuario ha iniciado sesión y es administrador
 if (!isset($_SESSION['usuario']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'admin')) {
-    header("Location: index.php"); // O una página de error de acceso denegado
+    header("Location: ../index.php");
     exit();
 }
-
-// Verificar si se recibió el ID del lote
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: gestion_lote.php?error=id_invalido");
-    exit();
-}
-
-$lote_id = $_GET['id'];
-
-// Obtener la información del lote a editar
-$stmt_lote = $pdo->prepare("SELECT producto_id, cantidad, fecha_vencimiento FROM lotes WHERE id = :id");
-$stmt_lote->bindParam(':id', $lote_id);
-$stmt_lote->execute();
-$lote = $stmt_lote->fetch(PDO::FETCH_ASSOC);
-
-if (!$lote) {
-    header("Location: gestion_lote.php?error=lote_no_encontrado");
-    exit();
-}
-
-$stmt_productos = $pdo->prepare("SELECT id, nombre FROM productos ORDER BY nombre");
-$stmt_productos->execute();
-$productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $producto_id = $_POST['producto_id'];
-    $cantidad = $_POST['cantidad'];
-    $fecha_vencimiento = $_POST['fecha_vencimiento'];
+    $nombre = $_POST['nombre'];
+    $contacto = $_POST['contacto'];
+    $telefono = $_POST['telefono'];
 
-    if (empty($producto_id) || empty($cantidad) || empty($fecha_vencimiento) || !is_numeric($cantidad) || $cantidad <= 0) {
-        $error_message = "Por favor, completa todos los campos correctamente.";
+    if (empty($nombre) || empty($contacto) || empty($telefono)) {
+        $error_message = "Por favor, completa todos los campos.";
     } else {
         try {
-            $stmt_update = $pdo->prepare("UPDATE lotes SET producto_id = :producto_id, cantidad = :cantidad, fecha_vencimiento = :fecha_vencimiento WHERE id = :id");
-            $stmt_update->bindParam(':producto_id', $producto_id);
-            $stmt_update->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
-            $stmt_update->bindParam(':fecha_vencimiento', $fecha_vencimiento);
-            $stmt_update->bindParam(':id', $lote_id);
-            $stmt_update->execute();
+            $stmt_insert = $pdo->prepare("INSERT INTO proveedores (nombre, contacto, telefono) VALUES (:nombre, :contacto, :telefono)");
+            $stmt_insert->bindParam(':nombre', $nombre);
+            $stmt_insert->bindParam(':contacto', $contacto);
+            $stmt_insert->bindParam(':telefono', $telefono);
+            $stmt_insert->execute();
 
-            $mensaje = "Lote actualizado exitosamente.";
-            header("Location: gestion_lote.php?mensaje=" . urlencode($mensaje));
+            $mensaje = "Proveedor agregado exitosamente.";
+            header("Location: ../gestion/gestion_proveedor.php?mensaje=" . urlencode($mensaje));
             exit();
 
         } catch (PDOException $e) {
-            $error_message = "Error al actualizar el lote: " . $e->getMessage();
+            $error_message = "Error al agregar el proveedor: " . $e->getMessage();
         }
     }
 }
@@ -61,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Lote | Variedades Juanmarc</title>
+    <title>Agregar Proveedor | Variedades Juanmarc</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -248,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .jm-formulario-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -256,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 auto 20px;
             font-size: 35px;
             color: white;
-            box-shadow: 0 10px 30px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -304,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: relative;
         }
 
-        .jm-form-input, .jm-form-select {
+        .jm-form-input {
             width: 100%;
             padding: 15px 20px 15px 50px;
             border: 2px solid #e9ecef;
@@ -315,11 +290,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #f8f9fa;
         }
 
-        .jm-form-input:focus, .jm-form-select:focus {
+        .jm-form-input:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: #28a745;
             background: white;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
             transform: translateY(-2px);
         }
 
@@ -333,9 +308,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.3s ease;
         }
 
-        .jm-form-input:focus + .jm-form-icon,
-        .jm-form-select:focus + .jm-form-icon {
-            color: #3498db;
+        .jm-form-input:focus + .jm-form-icon {
+            color: #28a745;
         }
 
         .jm-form-actions {
@@ -362,14 +336,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .jm-btn-primary {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
         .jm-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
             color: white;
             text-decoration: none;
         }
@@ -385,50 +359,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
             color: white;
             text-decoration: none;
-        }
-
-        /* ESTADO DEL LOTE */
-        .jm-lote-estado {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-left: 4px solid #3498db;
-        }
-
-        .jm-lote-estado-titulo {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .jm-lote-estado-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .jm-lote-info-item {
-            text-align: center;
-        }
-
-        .jm-lote-info-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .jm-lote-info-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: #2c3e50;
         }
 
         /* ALERTAS MEJORADAS */
@@ -516,10 +446,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .jm-btn {
                 width: 100%;
             }
-
-            .jm-lote-estado-info {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -536,7 +462,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </li>
             <li><a href="datos_personales.php" class="jm-link"><i class="fas fa-user mr-2"></i> Datos personales</a></li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_usuario.php" class="jm-link"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
+                <li><a href="../gestion/gestion_usuario.php" class="jm-link"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
             <?php endif; ?>
 
             <li class="jm-menu-title">
@@ -550,55 +476,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Almacén
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_producto.php" class="jm-link"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
+                <li><a href="../gestion/gestion_producto.php" class="jm-link"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
             <?php endif; ?>
-            <li><a href="gestion_lote.php" class="jm-link active"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
+            <li><a href="../gestion/gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
 
             <li class="jm-menu-title">
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/supplier.png" alt="icono compras">
                 Compras
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
+                <li><a href="../gestion/gestion_proveedor.php" class="jm-link active"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
             <?php endif; ?>
         </ul>
     </div>
 
     <div class="jm-main">
         <div class="jm-navbar">
-            <h2><i class="fas fa-edit mr-3"></i>Editar Lote</h2>
+            <h2><i class="fas fa-plus mr-3"></i>Agregar Proveedor</h2>
         </div>
 
         <div class="jm-formulario-container">
-            <!-- Estado actual del lote -->
-            <div class="jm-lote-estado">
-                <div class="jm-lote-estado-titulo">
-                    <i class="fas fa-info-circle"></i>
-                    Información Actual del Lote
-                </div>
-                <div class="jm-lote-estado-info">
-                    <div class="jm-lote-info-item">
-                        <div class="jm-lote-info-label">ID del Lote</div>
-                        <div class="jm-lote-info-value">#<?php echo htmlspecialchars($lote_id); ?></div>
-                    </div>
-                    <div class="jm-lote-info-item">
-                        <div class="jm-lote-info-label">Cantidad Actual</div>
-                        <div class="jm-lote-info-value"><?php echo htmlspecialchars($lote['cantidad']); ?> unidades</div>
-                    </div>
-                    <div class="jm-lote-info-item">
-                        <div class="jm-lote-info-label">Fecha de Vencimiento</div>
-                        <div class="jm-lote-info-value"><?php echo htmlspecialchars(date('d/m/Y', strtotime($lote['fecha_vencimiento']))); ?></div>
-                    </div>
-                </div>
-            </div>
-
             <div class="jm-formulario">
                 <div class="jm-formulario-header">
                     <div class="jm-formulario-icon">
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-plus"></i>
                     </div>
-                    <h2>Editar Lote</h2>
-                    <p class="jm-formulario-subtitle">Modifica la información del lote #<?php echo htmlspecialchars($lote_id); ?></p>
+                    <h2>Nuevo Proveedor</h2>
+                    <p class="jm-formulario-subtitle">Agrega un nuevo proveedor a tu red de contactos</p>
                 </div>
 
                 <?php if (isset($error_message)): ?>
@@ -610,59 +514,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form action="" method="POST">
                     <div class="jm-form-group">
-                        <label for="producto_id" class="jm-form-label">
-                            <i class="fas fa-box mr-2"></i>Producto
+                        <label for="nombre" class="jm-form-label">
+                            <i class="fas fa-building mr-2"></i>Nombre del Proveedor
                         </label>
                         <div class="jm-form-input-container">
-                            <select class="jm-form-select" id="producto_id" name="producto_id" required>
-                                <option value="">Seleccionar Producto</option>
-                                <?php foreach ($productos as $producto): ?>
-                                    <option value="<?php echo htmlspecialchars($producto['id']); ?>" <?php if ($producto['id'] == $lote['producto_id']) echo 'selected'; ?>>
-                                        <?php echo htmlspecialchars($producto['nombre']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <i class="fas fa-box jm-form-icon"></i>
+                            <input type="text" 
+                                   class="jm-form-input" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   placeholder="Ingresa el nombre de la empresa"
+                                   required>
+                            <i class="fas fa-building jm-form-icon"></i>
                         </div>
                     </div>
 
                     <div class="jm-form-group">
-                        <label for="cantidad" class="jm-form-label">
-                            <i class="fas fa-sort-numeric-up mr-2"></i>Cantidad
+                        <label for="contacto" class="jm-form-label">
+                            <i class="fas fa-user mr-2"></i>Persona de Contacto
                         </label>
                         <div class="jm-form-input-container">
-                            <input type="number" 
+                            <input type="text" 
                                    class="jm-form-input" 
-                                   id="cantidad" 
-                                   name="cantidad" 
-                                   min="1" 
-                                   value="<?php echo htmlspecialchars($lote['cantidad']); ?>" 
-                                   placeholder="Cantidad de unidades"
+                                   id="contacto" 
+                                   name="contacto" 
+                                   placeholder="Nombre del representante"
                                    required>
-                            <i class="fas fa-sort-numeric-up jm-form-icon"></i>
+                            <i class="fas fa-user jm-form-icon"></i>
                         </div>
                     </div>
 
                     <div class="jm-form-group">
-                        <label for="fecha_vencimiento" class="jm-form-label">
-                            <i class="fas fa-calendar-alt mr-2"></i>Fecha de Vencimiento
+                        <label for="telefono" class="jm-form-label">
+                            <i class="fas fa-phone mr-2"></i>Teléfono de Contacto
                         </label>
                         <div class="jm-form-input-container">
-                            <input type="date" 
+                            <input type="text" 
                                    class="jm-form-input" 
-                                   id="fecha_vencimiento" 
-                                   name="fecha_vencimiento" 
-                                   value="<?php echo htmlspecialchars($lote['fecha_vencimiento']); ?>" 
+                                   id="telefono" 
+                                   name="telefono" 
+                                   placeholder="Número de teléfono o WhatsApp"
                                    required>
-                            <i class="fas fa-calendar-alt jm-form-icon"></i>
+                            <i class="fas fa-phone jm-form-icon"></i>
                         </div>
                     </div>
 
                     <div class="jm-form-actions">
                         <button type="submit" class="jm-btn jm-btn-primary">
-                            <i class="fas fa-save"></i> Guardar Cambios
+                            <i class="fas fa-save"></i> Guardar Proveedor
                         </button>
-                        <a href="gestion_lote.php" class="jm-btn jm-btn-secondary">
+                        <a href="../gestion/gestion_proveedor.php" class="jm-btn jm-btn-secondary">
                             <i class="fas fa-arrow-left"></i> Volver
                         </a>
                     </div>
@@ -694,7 +594,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
 
             // Efecto de focus mejorado
-            const inputs = document.querySelectorAll('.jm-form-input, .jm-form-select');
+            const inputs = document.querySelectorAll('.jm-form-input');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
                     this.parentElement.style.transform = 'scale(1.02)';
@@ -704,68 +604,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     this.parentElement.style.transform = 'scale(1)';
                 });
             });
-
-            // Animación para el estado del lote
-            const estadoLote = document.querySelector('.jm-lote-estado');
-            estadoLote.style.opacity = '0';
-            estadoLote.style.transform = 'translateY(-20px)';
-            setTimeout(() => {
-                estadoLote.style.transition = 'all 0.6s ease';
-                estadoLote.style.opacity = '1';
-                estadoLote.style.transform = 'translateY(0)';
-            }, 100);
         });
 
-        // Validación en tiempo real para cantidad
-        document.getElementById('cantidad').addEventListener('input', function() {
-            const cantidad = parseInt(this.value);
+        // Validación en tiempo real
+        document.getElementById('telefono').addEventListener('input', function() {
+            const telefono = this.value;
             const icon = this.nextElementSibling;
             
-            if (cantidad > 0) {
+            if (telefono.length >= 10) {
                 icon.className = 'fas fa-check jm-form-icon';
                 icon.style.color = '#27ae60';
             } else {
-                icon.className = 'fas fa-sort-numeric-up jm-form-icon';
+                icon.className = 'fas fa-phone jm-form-icon';
                 icon.style.color = '#7f8c8d';
             }
         });
 
-        // Validación para fecha de vencimiento
-        document.getElementById('fecha_vencimiento').addEventListener('change', function() {
-            const fechaSeleccionada = new Date(this.value);
-            const hoy = new Date();
+        // Validación del nombre de empresa
+        document.getElementById('nombre').addEventListener('input', function() {
+            const nombre = this.value;
             const icon = this.nextElementSibling;
             
-            if (fechaSeleccionada > hoy) {
-                icon.className = 'fas fa-check jm-form-icon';
-                icon.style.color = '#27ae60';
-            } else if (fechaSeleccionada.toDateString() === hoy.toDateString()) {
-                icon.className = 'fas fa-exclamation-triangle jm-form-icon';
-                icon.style.color = '#f39c12';
-            } else {
-                icon.className = 'fas fa-times jm-form-icon';
-                icon.style.color = '#e74c3c';
-            }
-        });
-
-        // Validación para producto seleccionado
-        document.getElementById('producto_id').addEventListener('change', function() {
-            const icon = this.nextElementSibling;
-            
-            if (this.value) {
+            if (nombre.length >= 3) {
                 icon.className = 'fas fa-check jm-form-icon';
                 icon.style.color = '#27ae60';
             } else {
-                icon.className = 'fas fa-box jm-form-icon';
+                icon.className = 'fas fa-building jm-form-icon';
                 icon.style.color = '#7f8c8d';
             }
         });
 
-        // Ejecutar validaciones iniciales
-        window.addEventListener('load', function() {
-            document.getElementById('cantidad').dispatchEvent(new Event('input'));
-            document.getElementById('fecha_vencimiento').dispatchEvent(new Event('change'));
-            document.getElementById('producto_id').dispatchEvent(new Event('change'));
+        // Validación del contacto
+        document.getElementById('contacto').addEventListener('input', function() {
+            const contacto = this.value;
+            const icon = this.nextElementSibling;
+            
+            if (contacto.length >= 2) {
+                icon.className = 'fas fa-check jm-form-icon';
+                icon.style.color = '#27ae60';
+            } else {
+                icon.className = 'fas fa-user jm-form-icon';
+                icon.style.color = '#7f8c8d';
+            }
         });
     </script>
 </body>

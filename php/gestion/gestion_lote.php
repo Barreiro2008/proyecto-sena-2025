@@ -1,8 +1,8 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit();
 }
 
@@ -1029,7 +1029,7 @@ if (isset($_GET['error'])) {
         </div>
 
         <div class="jm-contenedor-botones">
-            <a href="agregar_lote.php" class="btn-agregar">
+            <a href="../agregar/agregar_lote.php" class="btn-agregar">
                 <i class="fas fa-plus"></i> Agregar Lote
             </a>
         </div>
@@ -1108,7 +1108,7 @@ if (isset($_GET['error'])) {
             </table>
         </div>
 
-        <a href="index.php" class="btn-agregar" style="margin-top: 30px;">
+        <a href="../index.php" class="btn-agregar" style="margin-top: 30px;">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
 

@@ -1,39 +1,56 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
+// Verificar si el usuario ha iniciado sesión y es administrador
 if (!isset($_SESSION['usuario']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'admin')) {
-    header("Location: index.php");
+    header("Location: ../index.php"); // O una página de error de acceso denegado
     exit();
 }
 
-// Obtener la lista de proveedores para el formulario de selección
-$stmt_proveedores = $pdo->query("SELECT id, nombre FROM proveedores ORDER BY nombre");
-$proveedores = $stmt_proveedores->fetchAll(PDO::FETCH_ASSOC);
+// Verificar si se recibió el ID del producto
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    header("Location: ../gestion/gestion_producto.php?error=id_invalido");
+    exit();
+}
 
+$producto_id = $_GET['id'];
+
+// Obtener la información del producto a editar
+$stmt_producto = $pdo->prepare("SELECT nombre, precio, stock FROM productos WHERE id = :id");
+$stmt_producto->bindParam(':id', $producto_id);
+$stmt_producto->execute();
+$producto = $stmt_producto->fetch(PDO::FETCH_ASSOC);
+
+if (!$producto) {
+    header("Location: ../gestion/gestion_producto.php?error=producto_no_encontrado");
+    exit();
+}
+
+// Procesar el formulario cuando se envíe
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = $_POST['nombre'];
     $precio = $_POST['precio'];
     $stock = $_POST['stock'];
-    $proveedor_id = $_POST['proveedor_id']; // Nuevo campo para el proveedor
 
-    if (empty($nombre) || empty($precio) || empty($stock) || !is_numeric($precio) || !is_numeric($stock) || $precio <= 0 || $stock < 0 || empty($proveedor_id)) {
-        $error_message = "Por favor, completa todos los campos correctamente y selecciona un proveedor.";
+    // Validaciones básicas
+    if (empty($nombre) || empty($precio) || empty($stock) || !is_numeric($precio) || !is_numeric($stock) || $precio <= 0 || $stock < 0) {
+        $error_message = "Por favor, completa todos los campos correctamente.";
     } else {
         try {
-            $stmt_insert = $pdo->prepare("INSERT INTO productos (nombre, precio, stock, proveedor_id) VALUES (:nombre, :precio, :stock, :proveedor_id)");
-            $stmt_insert->bindParam(':nombre', $nombre);
-            $stmt_insert->bindParam(':precio', $precio);
-            $stmt_insert->bindParam(':stock', $stock, PDO::PARAM_INT);
-            $stmt_insert->bindParam(':proveedor_id', $proveedor_id, PDO::PARAM_INT); // Bind del proveedor_id
-            $stmt_insert->execute();
+            $stmt_update = $pdo->prepare("UPDATE productos SET nombre = :nombre, precio = :precio, stock = :stock WHERE id = :id");
+            $stmt_update->bindParam(':nombre', $nombre);
+            $stmt_update->bindParam(':precio', $precio);
+            $stmt_update->bindParam(':stock', $stock, PDO::PARAM_INT);
+            $stmt_update->bindParam(':id', $producto_id);
+            $stmt_update->execute();
 
-            $mensaje = "Producto agregado exitosamente.";
-            header("Location: gestion_producto.php?mensaje=" . urlencode($mensaje));
+            $mensaje = "Producto actualizado exitosamente.";
+            header("Location: ../gestion/gestion_producto.php?mensaje=" . urlencode($mensaje));
             exit();
 
         } catch (PDOException $e) {
-            $error_message = "Error al agregar el producto: " . $e->getMessage();
+            $error_message = "Error al actualizar el producto: " . $e->getMessage();
         }
     }
 }
@@ -42,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agregar Producto | Variedades Juanmarc</title>
+    <title>Editar Producto | Variedades Juanmarc</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -196,19 +213,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
         }
 
-        /* PANEL DE AYUDA */
-        .jm-panel-ayuda {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        /* PANEL DE INFORMACIÓN DEL PRODUCTO */
+        .jm-panel-producto {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
             color: white;
             border-radius: 20px;
             padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 10px 40px rgba(155, 89, 182, 0.3);
             position: relative;
             overflow: hidden;
         }
 
-        .jm-panel-ayuda::before {
+        .jm-panel-producto::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -219,14 +236,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             animation: shine 4s infinite;
         }
 
-        .jm-ayuda-header {
+        .jm-producto-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 15px;
         }
 
-        .jm-ayuda-icon {
+        .jm-producto-icon {
             width: 50px;
             height: 50px;
             background: rgba(255, 255, 255, 0.2);
@@ -237,29 +254,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 20px;
         }
 
-        .jm-ayuda-titulo {
+        .jm-producto-titulo {
             font-size: 20px;
             font-weight: 700;
             margin: 0;
         }
 
-        .jm-ayuda-lista {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .jm-producto-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .jm-ayuda-lista li {
-            padding: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
+        .jm-info-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
         }
 
-        .jm-ayuda-lista li i {
-            color: #FFD700;
-            width: 16px;
+        .jm-info-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .jm-info-value {
+            font-size: 18px;
+            font-weight: 700;
         }
 
         /* FORMULARIO MODERNO */
@@ -290,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .jm-formulario-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -298,7 +324,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0 auto 20px;
             font-size: 35px;
             color: white;
-            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -365,34 +391,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .jm-form-control:hover {
             border-color: #dee2e6;
             background: white;
-        }
-
-        /* SELECT PERSONALIZADO */
-        .jm-select-wrapper {
-            position: relative;
-        }
-
-        .jm-select-wrapper::after {
-            content: '\f107';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #7f8c8d;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-
-        .jm-select-wrapper:hover::after {
-            color: #FFA500;
-        }
-
-        .jm-form-control.select {
-            appearance: none;
-            background-image: none;
-            cursor: pointer;
         }
 
         /* ICONOS EN CAMPOS */
@@ -543,7 +541,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
-        .jm-panel-ayuda {
+        .jm-panel-producto {
             animation: slideInUp 0.6s ease;
         }
 
@@ -577,6 +575,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 justify-content: center;
                 margin-bottom: 10px;
             }
+
+            .jm-producto-info {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -593,7 +595,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </li>
             <li><a href="datos_personales.php" class="jm-link"><i class="fas fa-user mr-2"></i> Datos personales</a></li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_usuario.php" class="jm-link"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
+                <li><a href="../gestion/gestion_usuario.php" class="jm-link"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
             <?php endif; ?>
 
             <li class="jm-menu-title">
@@ -607,53 +609,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Almacén
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_producto.php" class="jm-link active"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
+                <li><a href="../gestion/gestion_producto.php" class="jm-link active"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
             <?php endif; ?>
-            <li><a href="gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
+            <li><a href="../gestion/gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
 
             <li class="jm-menu-title">
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/supplier.png" alt="icono compras">
                 Compras
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
+                <li><a href="../gestion/gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
             <?php endif; ?>
         </ul>
     </div>
 
     <div class="jm-main">
         <div class="jm-navbar">
-            <h2><i class="fas fa-plus-circle mr-3"></i>Agregar Nuevo Producto</h2>
+            <h2><i class="fas fa-edit mr-3"></i>Editar Producto</h2>
             <div class="jm-cart">
                 <img src="https://img.icons8.com/ios-filled/24/ffffff/shopping-cart.png"/>
                 <span class="jm-cart-badge">0</span>
             </div>
         </div>
 
-        <!-- Panel de ayuda -->
-        <div class="jm-panel-ayuda">
-            <div class="jm-ayuda-header">
-                <div class="jm-ayuda-icon">
-                    <i class="fas fa-lightbulb"></i>
+        <!-- Panel de información del producto actual -->
+        <div class="jm-panel-producto">
+            <div class="jm-producto-header">
+                <div class="jm-producto-icon">
+                    <i class="fas fa-box-open"></i>
                 </div>
-                <h3 class="jm-ayuda-titulo">Consejos para Agregar Productos</h3>
+                <h3 class="jm-producto-titulo">Producto #<?php echo htmlspecialchars($producto_id); ?></h3>
             </div>
-            <ul class="jm-ayuda-lista">
-                <li><i class="fas fa-check"></i> Asegúrate de que el nombre del producto sea descriptivo y único</li>
-                <li><i class="fas fa-check"></i> El precio debe ser mayor a $0.01 para ser válido</li>
-                <li><i class="fas fa-check"></i> El stock inicial puede ser 0 si aún no tienes inventario</li>
-                <li><i class="fas fa-check"></i> Selecciona el proveedor correcto para mantener un buen control</li>
-            </ul>
+            <div class="jm-producto-info">
+                <div class="jm-info-item">
+                    <div class="jm-info-label">Nombre Actual</div>
+                    <div class="jm-info-value"><?php echo htmlspecialchars($producto['nombre']); ?></div>
+                </div>
+                <div class="jm-info-item">
+                    <div class="jm-info-label">Precio Actual</div>
+                    <div class="jm-info-value">$<?php echo htmlspecialchars(number_format($producto['precio'], 2)); ?></div>
+                </div>
+                <div class="jm-info-item">
+                    <div class="jm-info-label">Stock Actual</div>
+                    <div class="jm-info-value"><?php echo htmlspecialchars($producto['stock']); ?> unidades</div>
+                </div>
+            </div>
         </div>
 
         <!-- Formulario -->
         <div class="jm-formulario">
             <div class="jm-formulario-header">
                 <div class="jm-formulario-icon">
-                    <i class="fas fa-box"></i>
+                    <i class="fas fa-edit"></i>
                 </div>
-                <h2 class="jm-formulario-titulo">Nuevo Producto</h2>
-                <p class="jm-formulario-subtitle">Completa la información del producto que deseas agregar</p>
+                <h2 class="jm-formulario-titulo">Editar Información</h2>
+                <p class="jm-formulario-subtitle">Modifica los datos del producto según sea necesario</p>
             </div>
 
             <?php if (isset($error_message)): ?>
@@ -671,7 +681,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div style="position: relative;">
                         <i class="jm-input-icon fas fa-box"></i>
                         <input type="text" class="jm-form-control with-icon" id="nombre" name="nombre" 
-                               placeholder="Ej: Arroz Diana 500g" required>
+                               value="<?php echo htmlspecialchars($producto['nombre']); ?>" required>
                     </div>
                 </div>
 
@@ -682,43 +692,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div style="position: relative;">
                         <i class="jm-input-icon fas fa-money-bill-wave"></i>
                         <input type="number" class="jm-form-control with-icon" id="precio" name="precio" 
-                               min="0.01" step="0.01" placeholder="0.00" required>
+                               min="0.01" step="0.01" value="<?php echo htmlspecialchars($producto['precio']); ?>" required>
                     </div>
                 </div>
 
                 <div class="jm-form-group">
                     <label for="stock" class="jm-form-label">
-                        <i class="fas fa-cubes mr-2"></i>Stock Inicial
+                        <i class="fas fa-cubes mr-2"></i>Stock
                     </label>
                     <div style="position: relative;">
                         <i class="jm-input-icon fas fa-warehouse"></i>
                         <input type="number" class="jm-form-control with-icon" id="stock" name="stock" 
-                               min="0" placeholder="0" required>
-                    </div>
-                </div>
-
-                <div class="jm-form-group">
-                    <label for="proveedor_id" class="jm-form-label">
-                        <i class="fas fa-truck mr-2"></i>Proveedor
-                    </label>
-                    <div class="jm-select-wrapper">
-                        <select class="jm-form-control select" id="proveedor_id" name="proveedor_id" required>
-                            <option value="">Seleccionar Proveedor</option>
-                            <?php foreach ($proveedores as $proveedor): ?>
-                                <option value="<?php echo $proveedor['id']; ?>">
-                                    <?php echo htmlspecialchars($proveedor['nombre']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                               min="0" value="<?php echo htmlspecialchars($producto['stock']); ?>" required>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-top: 40px;">
                     <button type="submit" class="jm-btn jm-btn-primary">
-                        <i class="fas fa-save"></i> Guardar Producto
+                        <i class="fas fa-save"></i> Guardar Cambios
                     </button>
                     <br>
-                    <a href="gestion_producto.php" class="jm-btn jm-btn-secondary">
+                    <a href="../gestion/gestion_producto.php" class="jm-btn jm-btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver a Gestión de Productos
                     </a>
                 </div>
@@ -753,7 +747,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const nombreInput = document.getElementById('nombre');
             const precioInput = document.getElementById('precio');
             const stockInput = document.getElementById('stock');
-            const proveedorSelect = document.getElementById('proveedor_id');
 
             // Validación del nombre
             nombreInput.addEventListener('input', function() {
@@ -784,15 +777,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             });
 
-            // Validación del proveedor
-            proveedorSelect.addEventListener('change', function() {
-                if (this.value === '') {
-                    this.style.borderColor = '#e74c3c';
-                } else {
-                    this.style.borderColor = '#27ae60';
-                }
-            });
-
             // Formateo automático del precio
             precioInput.addEventListener('blur', function() {
                 if (this.value && !isNaN(this.value)) {
@@ -817,7 +801,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const nombre = nombreInput.value.trim();
                 const precio = parseFloat(precioInput.value);
                 const stock = parseInt(stockInput.value);
-                const proveedor = proveedorSelect.value;
 
                 let errores = [];
 
@@ -831,10 +814,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (stock < 0 || isNaN(stock)) {
                     errores.push('El stock no puede ser negativo');
-                }
-
-                if (proveedor === '') {
-                    errores.push('Debes seleccionar un proveedor');
                 }
 
                 if (errores.length > 0) {
@@ -859,12 +838,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.querySelector('.jm-alert').scrollIntoView({ behavior: 'smooth' });
                 }
             });
+
+            // Detectar cambios en los campos
+            const originalValues = {
+                nombre: nombreInput.value,
+                precio: precioInput.value,
+                stock: stockInput.value
+            };
+
+            function detectarCambios() {
+                const hasChanges = 
+                    nombreInput.value !== originalValues.nombre ||
+                    precioInput.value !== originalValues.precio ||
+                    stockInput.value !== originalValues.stock;
+
+                const submitBtn = document.querySelector('button[type="submit"]');
+                if (hasChanges) {
+                    submitBtn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+                } else {
+                    submitBtn.style.background = 'linear-gradient(135deg, #007bff 0%, #0056b3 100%)';
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Sin Cambios';
+                }
+            }
+
+            nombreInput.addEventListener('input', detectarCambios);
+            precioInput.addEventListener('input', detectarCambios);
+            stockInput.addEventListener('input', detectarCambios);
         });
 
         // Efecto de carga en el botón de envío
         document.getElementById('productoForm').addEventListener('submit', function() {
             const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
             submitBtn.disabled = true;
         });
     </script>

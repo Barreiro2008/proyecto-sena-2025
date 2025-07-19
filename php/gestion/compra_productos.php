@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
 if (!isset($_SESSION['usuario'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -301,7 +301,7 @@ function obtenerLotesProveedor($pdo, $proveedor_id) {
             <?php endforeach; ?>
         <?php endif; ?>
 
-        <a href="index.php" class="jm-link-volver"><i class="fas fa-arrow-left mr-2"></i> Volver</a>
+        <a href="../index.php" class="jm-link-volver"><i class="fas fa-arrow-left mr-2"></i> Volver</a>
 
         <footer class="jm-footer">
             © 2025 Variedades Juanmarc. Todos los derechos reservados.

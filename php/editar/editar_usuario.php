@@ -1,16 +1,16 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
 // Verificar si el usuario ha iniciado sesión y es administrador
 if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
-    header("Location: index.php"); // Redirigir si no es administrador
+    header("Location: ../index.php"); // Redirigir si no es administrador
     exit();
 }
 
 // Verificar si se recibió el ID del usuario a editar
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: gestion_usuario.php?error=id_invalido");
+    header("Location: ../gestion/gestion_usuario.php?error=id_invalido");
     exit();
 }
 
@@ -23,7 +23,7 @@ $stmt_select->execute();
 $usuario_editar = $stmt_select->fetch();
 
 if (!$usuario_editar) {
-    header("Location: gestion_usuario.php?error=usuario_no_encontrado");
+    header("Location: ../gestion/gestion_usuario.php?error=usuario_no_encontrado");
     exit();
 }
 
@@ -633,7 +633,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </li>
             <li><a href="datos_personales.php" class="jm-link"><i class="fas fa-user mr-2"></i> Datos personales</a></li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_usuario.php" class="jm-link active"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
+                <li><a href="../gestion/gestion_usuario.php" class="jm-link active"><i class="fas fa-cog mr-2"></i> Gestión usuario</a></li>
             <?php endif; ?>
 
             <li class="jm-menu-title">
@@ -647,16 +647,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Almacén
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_producto.php" class="jm-link"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
+                <li><a href="../gestion/gestion_producto.php" class="jm-link"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
             <?php endif; ?>
-            <li><a href="gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
+            <li><a href="../gestion/gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
 
             <li class="jm-menu-title">
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/supplier.png" alt="icono compras">
                 Compras
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
+                <li><a href="../gestion/gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
             <?php endif; ?>
         </ul>
     </div>
@@ -788,7 +788,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="jm-btn jm-btn-primary">
                             <i class="fas fa-save"></i> Guardar Cambios
                         </button>
-                        <a href="gestion_usuario.php" class="jm-btn jm-btn-secondary">
+                        <a href="../gestion/gestion_usuario.php" class="jm-btn jm-btn-secondary">
                             <i class="fas fa-arrow-left"></i> Volver
                         </a>
                     </div>

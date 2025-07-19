@@ -1,55 +1,20 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
-// Verificar si el usuario ha iniciado sesión
-if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
+if (!isset($_SESSION['usuario']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'admin')) {
+    header("Location: ../index.php");
     exit();
 }
 
-// Obtener todas las ventas de la base de datos, incluyendo información del usuario
-$stmt = $pdo->prepare("
-    SELECT
-        v.id AS venta_id,
-        v.fecha_venta,
-        v.total_venta,
-        u.usuario AS nombre_usuario
-    FROM ventas v
-    JOIN usuarios u ON v.usuario_id = u.id
-    ORDER BY v.fecha_venta DESC
-");
+$stmt = $pdo->prepare("SELECT id, nombre, contacto, telefono FROM proveedores ORDER BY nombre");
 $stmt->execute();
-$ventas_raw = $stmt->fetchAll();
+$proveedores = $stmt->fetchAll();
 
-// Agrupar ventas por fecha (solo fecha, sin hora)
-$ventas_por_fecha = [];
-foreach ($ventas_raw as $venta) {
-    $fecha = date('Y-m-d', strtotime($venta['fecha_venta'])); // solo fecha sin hora
-    if (!isset($ventas_por_fecha[$fecha])) {
-        $ventas_por_fecha[$fecha] = [];
-    }
-    $ventas_por_fecha[$fecha][] = $venta;
-}
-
-// Obtener las fechas disponibles ordenadas descendente
-$fechas_disponibles = array_keys($ventas_por_fecha);
-rsort($fechas_disponibles);
-
-// Filtrar por fecha seleccionada
-$fecha_seleccionada = $_GET['fecha'] ?? '';
-
-if ($fecha_seleccionada && isset($ventas_por_fecha[$fecha_seleccionada])) {
-    $ventas = $ventas_por_fecha[$fecha_seleccionada];
-} else {
-    // Mostrar todas las ventas sin filtrar
-    $ventas = $ventas_raw;
-}
-
-// Mostrar mensajes si existen
 if (isset($_GET['mensaje'])) {
     $mensaje = '<div class="alert alert-success">' . htmlspecialchars($_GET['mensaje']) . '</div>';
-} elseif (isset($_GET['error'])) {
+}
+if (isset($_GET['error'])) {
     $mensaje = '<div class="alert alert-danger">' . htmlspecialchars($_GET['error']) . '</div>';
 } else {
     $mensaje = '';
@@ -59,7 +24,7 @@ if (isset($_GET['mensaje'])) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Listar Ventas | Variedades Juanmarc</title>
+    <title>Gestión de Proveedores | Variedades Juanmarc</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -272,14 +237,14 @@ if (isset($_GET['mensaje'])) {
             animation: shine 2s infinite;
         }
 
-        .jm-alert-success .jm-alert-icon {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
-        }
-
         .jm-alert-info .jm-alert-icon {
             background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             box-shadow: 0 10px 30px rgba(52, 152, 219, 0.4);
+        }
+
+        .jm-alert-success .jm-alert-icon {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.4);
         }
 
         .jm-alert-title {
@@ -485,55 +450,7 @@ if (isset($_GET['mensaje'])) {
             color: #7f8c8d;
         }
 
-        /* FILTRO MODERNO */
-        .jm-filtro-container {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 25px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .jm-filtro-container select {
-            flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-            font-weight: 500;
-        }
-
-        .jm-filtro-container select:focus {
-            outline: none;
-            border-color: #FFA500;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.1);
-        }
-
-        .jm-filtro-btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
-        }
-
-        .jm-filtro-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 165, 0, 0.4);
-        }
-
-        /* ESTADÍSTICAS DE VENTAS */
+        /* ESTADÍSTICAS DE PROVEEDORES */
         .jm-estadisticas {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -573,154 +490,265 @@ if (isset($_GET['mensaje'])) {
             font-weight: 500;
         }
 
-        .stat-ventas-hoy {
-            border-left: 4px solid #27ae60;
-        }
-
-        .stat-ventas-hoy .jm-stat-icon {
-            color: #27ae60;
-        }
-
-        .stat-ventas-hoy .jm-stat-number {
-            color: #27ae60;
-        }
-
-        .stat-total-ventas {
+        .stat-total {
             border-left: 4px solid #3498db;
         }
 
-        .stat-total-ventas .jm-stat-icon {
+        .stat-total .jm-stat-icon {
             color: #3498db;
         }
 
-        .stat-total-ventas .jm-stat-number {
+        .stat-total .jm-stat-number {
             color: #3498db;
         }
 
-        .stat-ingresos-hoy {
+        .stat-activos {
+            border-left: 4px solid #27ae60;
+        }
+
+        .stat-activos .jm-stat-icon {
+            color: #27ae60;
+        }
+
+        .stat-activos .jm-stat-number {
+            color: #27ae60;
+        }
+
+        .stat-contactos {
             border-left: 4px solid #f39c12;
         }
 
-        .stat-ingresos-hoy .jm-stat-icon {
+        .stat-contactos .jm-stat-icon {
             color: #f39c12;
         }
 
-        .stat-ingresos-hoy .jm-stat-number {
+        .stat-contactos .jm-stat-number {
             color: #f39c12;
         }
 
-        .stat-ingresos-total {
-            border-left: 4px solid #e74c3c;
+        /* BOTÓN AGREGAR MODERNO */
+        .jm-contenedor-botones {
+            margin-bottom: 25px;
+            text-align: right;
         }
 
-        .stat-ingresos-total .jm-stat-icon {
-            color: #e74c3c;
+        .btn-agregar {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
 
-        .stat-ingresos-total .jm-stat-number {
-            color: #e74c3c;
+        .btn-agregar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            text-decoration: none;
+            color: white;
         }
 
-        /* TABLA MODERNA */
-        .jm-tabla-container {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        /* TARJETAS DE PROVEEDORES MODERNAS */
+        .jm-proveedores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
             margin-bottom: 30px;
         }
 
-        .jm-tabla {
-            width: 100%;
-            margin: 0;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        .jm-tabla thead {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        }
-
-        .jm-tabla th {
-            padding: 20px 15px;
-            text-align: center;
-            color: #333;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 13px;
-            letter-spacing: 1px;
-            border: none;
-        }
-
-        .jm-tabla tbody tr {
+        .jm-proveedor-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            border: 1px solid #f1f3f4;
+        }
+
+        .jm-proveedor-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .jm-proveedor-header-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jm-proveedor-header-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        .jm-proveedor-nombre {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .jm-proveedor-info {
+            padding: 25px;
+        }
+
+        .jm-info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px 0;
             border-bottom: 1px solid #f1f3f4;
         }
 
-        .jm-tabla tbody tr:hover {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            transform: scale(1.01);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        .jm-info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
         }
 
-        .jm-tabla td {
-            padding: 18px 15px;
-            text-align: center;
-            vertical-align: middle;
-            border: none;
-            font-weight: 500;
+        .jm-info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 16px;
+            color: white;
         }
 
-        .jm-tabla td:first-child {
-            font-weight: 700;
-            color: #6c757d;
+        .jm-info-icon.contacto {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
         }
 
-        .jm-tabla td:nth-child(2) {
+        .jm-info-icon.telefono {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .jm-info-content {
+            flex: 1;
+        }
+
+        .jm-info-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .jm-info-value {
+            font-size: 16px;
             font-weight: 600;
             color: #2c3e50;
         }
 
-        .total-venta {
-            font-weight: 700;
-            color: #27ae60;
-            font-size: 16px;
-        }
-
-        .usuario-cell {
-            font-weight: 600;
-            color: #3498db;
-        }
-
-        /* BOTONES DE ACCIÓN */
-        .jm-gestion-acciones {
+        .jm-acciones-card {
+            padding: 20px 25px;
+            background: #f8f9fa;
             display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
+            gap: 12px;
+            justify-content: flex-end;
         }
 
-        .btn-ver-detalles {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            border: none;
+        .jm-btn-accion {
+            padding: 10px 18px;
             border-radius: 8px;
-            padding: 8px 15px;
-            font-size: 12px;
-            font-weight: 600;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .jm-btn-editar {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
             box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
         }
 
-        .btn-ver-detalles:hover {
+        .jm-btn-editar:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
             color: white;
             text-decoration: none;
+        }
+
+        .jm-btn-eliminar {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .jm-btn-eliminar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .jm-btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+        }
+
+        .jm-btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* ESTADO VACÍO */
+        .jm-estado-vacio {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .jm-estado-vacio-icon {
+            font-size: 80px;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .jm-estado-vacio-titulo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .jm-estado-vacio-mensaje {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
         }
 
         /* ALERTAS MEJORADAS */
@@ -741,6 +769,11 @@ if (isset($_GET['mensaje'])) {
         .alert-danger {
             background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
         }
 
         /* FOOTER */
@@ -802,22 +835,22 @@ if (isset($_GET['mensaje'])) {
                 padding: 15px;
             }
             
-            .jm-tabla td, .jm-tabla th {
-                padding: 10px 5px;
-                font-size: 12px;
+            .jm-proveedores-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .jm-estadisticas {
                 grid-template-columns: 1fr;
             }
 
-            .jm-filtro-container {
+            .jm-acciones-card {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
 
-            .jm-filtro-container select {
-                width: 100%;
+            .jm-btn-accion {
+                justify-content: center;
             }
         }
     </style>
@@ -852,7 +885,7 @@ if (isset($_GET['mensaje'])) {
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/sales-performance.png" alt="icono ventas">
                 Ventas
             </li>
-            <li><a href="listar_ventas.php" class="jm-link active"><i class="fas fa-chart-line mr-2"></i> Listar Ventas</a></li>
+            <li><a href="listar_ventas.php" class="jm-link"><i class="fas fa-chart-line mr-2"></i> Listar Ventas</a></li>
 
             <li class="jm-menu-title">
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/warehouse.png" alt="icono almacen">
@@ -868,116 +901,125 @@ if (isset($_GET['mensaje'])) {
                 Compras
             </li>
             <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
-                <li><a href="gestion_proveedor.php" class="jm-link"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
+                <li><a href="gestion_proveedor.php" class="jm-link active"><i class="fas fa-truck mr-2"></i> Gestión proveedor</a></li>
             <?php endif; ?>
         </ul>
     </div>
 
     <div class="jm-main">
         <div class="jm-navbar">
-            <h2><i class="fas fa-chart-line mr-3"></i>Listado de Ventas</h2>
+            <h2><i class="fas fa-truck mr-3"></i>Gestión de Proveedores</h2>
             
         </div>
 
         <?php echo $mensaje; ?>
 
         <?php
-        // Calcular estadísticas de ventas
-        $hoy = date('Y-m-d');
-        $ventasHoy = 0;
-        $ingresosHoy = 0;
-        $totalVentas = count($ventas_raw);
-        $ingresosTotal = 0;
+        // Calcular estadísticas de proveedores
+        $totalProveedores = count($proveedores);
+        $proveedoresActivos = $totalProveedores; // Asumimos que todos están activos
+        $proveedoresConTelefono = 0;
 
-        foreach ($ventas_raw as $venta) {
-            $fechaVenta = date('Y-m-d', strtotime($venta['fecha_venta']));
-            $ingresosTotal += $venta['total_venta'];
-            
-            if ($fechaVenta === $hoy) {
-                $ventasHoy++;
-                $ingresosHoy += $venta['total_venta'];
+        foreach ($proveedores as $proveedor) {
+            if (!empty($proveedor['telefono'])) {
+                $proveedoresConTelefono++;
             }
         }
         ?>
 
-        <!-- Estadísticas de Ventas -->
+        <!-- Estadísticas de Proveedores -->
         <div class="jm-estadisticas">
-            <div class="jm-stat-card stat-ventas-hoy" onclick="mostrarVentasHoy()">
-                <div class="jm-stat-icon"><i class="fas fa-calendar-day"></i></div>
-                <div class="jm-stat-number"><?php echo $ventasHoy; ?></div>
-                <div class="jm-stat-label">Ventas Hoy</div>
+            <div class="jm-stat-card stat-total" onclick="mostrarTotalProveedores()">
+                <div class="jm-stat-icon"><i class="fas fa-building"></i></div>
+                <div class="jm-stat-number"><?php echo $totalProveedores; ?></div>
+                <div class="jm-stat-label">Total Proveedores</div>
             </div>
-            <div class="jm-stat-card stat-total-ventas" onclick="mostrarTodasVentas()">
-                <div class="jm-stat-icon"><i class="fas fa-shopping-cart"></i></div>
-                <div class="jm-stat-number"><?php echo $totalVentas; ?></div>
-                <div class="jm-stat-label">Total Ventas</div>
+            <div class="jm-stat-card stat-activos" onclick="mostrarProveedoresActivos()">
+                <div class="jm-stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="jm-stat-number"><?php echo $proveedoresActivos; ?></div>
+                <div class="jm-stat-label">Proveedores Activos</div>
             </div>
-            <div class="jm-stat-card stat-ingresos-hoy" onclick="mostrarIngresosHoy()">
-                <div class="jm-stat-icon"><i class="fas fa-dollar-sign"></i></div>
-                <div class="jm-stat-number">$<?php echo number_format($ingresosHoy, 0); ?></div>
-                <div class="jm-stat-label">Ingresos Hoy</div>
-            </div>
-            <div class="jm-stat-card stat-ingresos-total" onclick="mostrarIngresosTotal()">
-                <div class="jm-stat-icon"><i class="fas fa-coins"></i></div>
-                <div class="jm-stat-number">$<?php echo number_format($ingresosTotal, 0); ?></div>
-                <div class="jm-stat-label">Ingresos Total</div>
+            <div class="jm-stat-card stat-contactos" onclick="mostrarProveedoresConTelefono()">
+                <div class="jm-stat-icon"><i class="fas fa-phone"></i></div>
+                <div class="jm-stat-number"><?php echo $proveedoresConTelefono; ?></div>
+                <div class="jm-stat-label">Con Teléfono</div>
             </div>
         </div>
 
-        <!-- Filtro por fecha -->
-        <form method="get" class="jm-filtro-container">
-            <i class="fas fa-filter" style="color: #FFA500; font-size: 20px;"></i>
-            <select name="fecha" onchange="this.form.submit()">
-                <option value="">📅 Todas las fechas</option>
-                <?php foreach ($fechas_disponibles as $fecha): ?>
-                    <option value="<?php echo htmlspecialchars($fecha); ?>" <?php if ($fecha === $fecha_seleccionada) echo 'selected'; ?>>
-                        <?php echo htmlspecialchars(date('d/m/Y', strtotime($fecha))); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <noscript><button type="submit" class="jm-filtro-btn">Filtrar</button></noscript>
-        </form>
+        <div class="jm-contenedor-botones">
+            <a href="../agregar/agregar_proveedor.php" class="btn-agregar">
+                <i class="fas fa-plus"></i> Agregar Proveedor
+            </a>
+        </div>
 
-        <div class="jm-tabla-container">
-            <table class="jm-tabla">
-                <thead>
-                    <tr>
-                        <th>ID Venta</th>
-                        <th>Fecha de Venta</th>
-                        <th>Total Venta</th>
-                        <th>Usuario</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (count($ventas) > 0): ?>
-                        <?php foreach ($ventas as $venta): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($venta['venta_id']); ?></td>
-                                <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($venta['fecha_venta']))); ?></td>
-                                <td class="total-venta">$<?php echo htmlspecialchars(number_format($venta['total_venta'], 2)); ?></td>
-                                <td class="usuario-cell"><?php echo htmlspecialchars($venta['nombre_usuario']); ?></td>
-                                <td class="jm-gestion-acciones">
-                                    <a href="detalles_venta.php?id=<?php echo htmlspecialchars($venta['venta_id']); ?>" class="btn-ver-detalles">
-                                        <i class="fas fa-eye"></i> Ver Detalles
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr><td colspan="5" class="text-center" style="padding: 40px; color: #6c757d; font-style: italic;">
-                            <?php if ($fecha_seleccionada): ?>
-                                No hay ventas registradas para la fecha seleccionada.
-                            <?php else: ?>
-                                No hay ventas registradas en el sistema.
+        <?php if (empty($proveedores)): ?>
+            <div class="jm-estado-vacio">
+                <div class="jm-estado-vacio-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3 class="jm-estado-vacio-titulo">No hay proveedores registrados</h3>
+                <p class="jm-estado-vacio-mensaje">
+                    Comienza agregando tu primer proveedor para gestionar mejor tu inventario y compras.
+                </p>
+                <a href="../agregar/agregar_proveedor.php" class="btn-agregar">
+                    <i class="fas fa-plus"></i> Agregar Primer Proveedor
+                </a>
+            </div>
+        <?php else: ?>
+            <div class="jm-proveedores-grid">
+                <?php foreach ($proveedores as $proveedor): ?>
+                    <div class="jm-proveedor-card">
+                        <div class="jm-proveedor-header-card">
+                            <h3 class="jm-proveedor-nombre">
+                                <i class="fas fa-building mr-2"></i>
+                                <?php echo htmlspecialchars($proveedor['nombre']); ?>
+                            </h3>
+                        </div>
+                        <div class="jm-proveedor-info">
+                            <div class="jm-info-item">
+                                <div class="jm-info-icon contacto">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="jm-info-content">
+                                    <div class="jm-info-label">Contacto</div>
+                                    <div class="jm-info-value"><?php echo htmlspecialchars($proveedor['contacto']); ?></div>
+                                </div>
+                            </div>
+                            <div class="jm-info-item">
+                                <div class="jm-info-icon telefono">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="jm-info-content">
+                                    <div class="jm-info-label">Teléfono</div>
+                                    <div class="jm-info-value">
+                                        <?php echo !empty($proveedor['telefono']) ? htmlspecialchars($proveedor['telefono']) : 'No disponible'; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="jm-acciones-card">
+                            <?php if (!empty($proveedor['telefono'])): ?>
+                                <a href="javascript:void(0)" 
+                                   class="jm-btn-accion jm-btn-whatsapp" 
+                                   onclick="contactarWhatsApp('<?php echo htmlspecialchars($proveedor['telefono']); ?>', '<?php echo htmlspecialchars($proveedor['nombre']); ?>')">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
                             <?php endif; ?>
-                        </td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                            <a href="editar_proveedor.php?id=<?php echo htmlspecialchars($proveedor['id']); ?>" class="jm-btn-accion jm-btn-editar">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="eliminar_proveedor.php?id=<?php echo htmlspecialchars($proveedor['id']); ?>" 
+                               class="jm-btn-accion jm-btn-eliminar" 
+                               onclick="return confirm('¿Estás seguro de que deseas eliminar este proveedor?')">
+                                <i class="fas fa-trash-alt"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
-        <a href="index.php" class="btn-ver-detalles" style="margin-top: 30px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);">
+        <a href="../index.php" class="btn-agregar" style="margin-top: 30px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%); box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);">
             <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
 
@@ -992,10 +1034,9 @@ if (isset($_GET['mensaje'])) {
     
     <script>
         // Datos de PHP para JavaScript
-        const ventasHoy = <?php echo $ventasHoy; ?>;
-        const totalVentas = <?php echo $totalVentas; ?>;
-        const ingresosHoy = <?php echo $ingresosHoy; ?>;
-        const ingresosTotal = <?php echo $ingresosTotal; ?>;
+        const totalProveedores = <?php echo $totalProveedores; ?>;
+        const proveedoresActivos = <?php echo $proveedoresActivos; ?>;
+        const proveedoresConTelefono = <?php echo $proveedoresConTelefono; ?>;
 
         // Función para mostrar alertas modales bonitas
         function mostrarAlerta(tipo, titulo, subtitulo, mensaje, detalles = null) {
@@ -1006,13 +1047,13 @@ if (isset($_GET['mensaje'])) {
             let tipoClase = '';
             
             switch(tipo) {
-                case 'success':
-                    iconoClase = 'fas fa-check-circle';
-                    tipoClase = 'jm-alert-success';
-                    break;
                 case 'info':
                     iconoClase = 'fas fa-info-circle';
                     tipoClase = 'jm-alert-info';
+                    break;
+                case 'success':
+                    iconoClase = 'fas fa-check-circle';
+                    tipoClase = 'jm-alert-success';
                     break;
             }
             
@@ -1109,71 +1150,73 @@ if (isset($_GET['mensaje'])) {
             }, 400);
         }
 
-        // Funciones específicas para estadísticas de ventas
-        function mostrarVentasHoy() {
-            if (ventasHoy > 0) {
+        // Funciones específicas para estadísticas de proveedores
+        function mostrarTotalProveedores() {
+            if (totalProveedores > 0) {
                 mostrarAlerta(
-                    'success',
-                    '📈 VENTAS DE HOY',
-                    `Has realizado ${ventasHoy} venta(s) el día de hoy`,
-                    '¡Excelente trabajo! Mantén el ritmo de ventas para alcanzar tus objetivos diarios.',
+                    'info',
+                    '🏢 TOTAL DE PROVEEDORES',
+                    `Tienes ${totalProveedores} proveedor(es) registrado(s)`,
+                    'Este es el resumen completo de todos los proveedores en tu sistema.',
                     [
-                        { label: 'Ventas realizadas', value: `${ventasHoy} venta(s)` },
-                        { label: 'Ingresos generados', value: `$${ingresosHoy.toLocaleString()}` },
-                        { label: 'Promedio por venta', value: `$${(ingresosHoy / ventasHoy).toLocaleString()}` }
+                        { label: 'Total de proveedores', value: `${totalProveedores} proveedor(es)` },
+                        { label: 'Proveedores activos', value: `${proveedoresActivos} proveedor(es)` },
+                        { label: 'Con información de contacto', value: `${proveedoresConTelefono} proveedor(es)` }
                     ]
                 );
             } else {
-                mostrarToast('info', 'Sin ventas hoy', 'Aún no has realizado ventas el día de hoy. ¡Es hora de empezar!');
+                mostrarToast('info', 'Sin proveedores', 'Aún no tienes proveedores registrados. ¡Agrega el primero!');
             }
         }
 
-        function mostrarTodasVentas() {
+        function mostrarProveedoresActivos() {
             mostrarAlerta(
-                'info',
-                '📊 RESUMEN TOTAL DE VENTAS',
-                `Tienes un total de ${totalVentas} venta(s) registradas`,
-                'Este es el resumen completo de todas las ventas realizadas en tu sistema.',
+                'success',
+                '✅ PROVEEDORES ACTIVOS',
+                `Tienes ${proveedoresActivos} proveedor(es) activo(s)`,
+                'Todos tus proveedores están disponibles para realizar pedidos y gestionar inventario.',
                 [
-                    { label: 'Total de ventas', value: `${totalVentas} venta(s)` },
-                    { label: 'Ingresos totales', value: `$${ingresosTotal.toLocaleString()}` },
-                    { label: 'Promedio por venta', value: `$${(ingresosTotal / totalVentas).toLocaleString()}` },
-                    { label: 'Ventas hoy', value: `${ventasHoy} venta(s)` }
+                    { label: 'Proveedores activos', value: `${proveedoresActivos} proveedor(es)` },
+                    { label: 'Total registrados', value: `${totalProveedores} proveedor(es)` },
+                    { label: 'Porcentaje activo', value: `${totalProveedores > 0 ? Math.round((proveedoresActivos / totalProveedores) * 100) : 0}%` }
                 ]
             );
         }
 
-        function mostrarIngresosHoy() {
-            if (ingresosHoy > 0) {
+        function mostrarProveedoresConTelefono() {
+            if (proveedoresConTelefono > 0) {
                 mostrarAlerta(
-                    'success',
-                    '💰 INGRESOS DE HOY',
-                    `Has generado $${ingresosHoy.toLocaleString()} en ingresos hoy`,
-                    '¡Fantástico! Tus ventas del día están generando buenos ingresos.',
+                    'info',
+                    '📞 PROVEEDORES CON TELÉFONO',
+                    `${proveedoresConTelefono} proveedor(es) tienen información de contacto`,
+                    'Estos proveedores pueden ser contactados directamente vía WhatsApp para pedidos urgentes.',
                     [
-                        { label: 'Ingresos del día', value: `$${ingresosHoy.toLocaleString()}` },
-                        { label: 'Número de ventas', value: `${ventasHoy} venta(s)` },
-                        { label: 'Ticket promedio', value: `$${ventasHoy > 0 ? (ingresosHoy / ventasHoy).toLocaleString() : '0'}` }
+                        { label: 'Con teléfono', value: `${proveedoresConTelefono} proveedor(es)` },
+                        { label: 'Sin teléfono', value: `${totalProveedores - proveedoresConTelefono} proveedor(es)` },
+                        { label: 'Porcentaje con contacto', value: `${totalProveedores > 0 ? Math.round((proveedoresConTelefono / totalProveedores) * 100) : 0}%` }
                     ]
                 );
             } else {
-                mostrarToast('info', 'Sin ingresos hoy', 'Aún no has generado ingresos el día de hoy.');
+                mostrarToast('info', 'Sin contactos', 'Ningún proveedor tiene información de teléfono registrada.');
             }
         }
 
-        function mostrarIngresosTotal() {
-            mostrarAlerta(
-                'info',
-                '💎 INGRESOS TOTALES',
-                `Has generado $${ingresosTotal.toLocaleString()} en total`,
-                'Este es el resumen de todos los ingresos generados por tu negocio.',
-                [
-                    { label: 'Ingresos totales', value: `$${ingresosTotal.toLocaleString()}` },
-                    { label: 'Total de ventas', value: `${totalVentas} venta(s)` },
-                    { label: 'Ticket promedio', value: `$${totalVentas > 0 ? (ingresosTotal / totalVentas).toLocaleString() : '0'}` },
-                    { label: 'Ingresos hoy', value: `$${ingresosHoy.toLocaleString()}` }
-                ]
-            );
+        // Función para contactar por WhatsApp
+        function contactarWhatsApp(telefono, nombreProveedor) {
+            // Limpiar el teléfono (quitar espacios y caracteres especiales)
+            const telefonoLimpio = telefono.replace(/\s/g, '').replace(/\+57/, '');
+            
+            // Crear el mensaje
+            const mensaje = `🏪 *VARIEDADES JUANMARC*\n\nHola, soy de Variedades Juanmarc.\n\nMe gustaría consultar sobre productos disponibles y realizar un pedido.\n\n¡Gracias por su atención!`;
+            
+            // Crear la URL de WhatsApp
+            const url = `https://wa.me/57${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
+            
+            // Abrir WhatsApp en una nueva ventana
+            window.open(url, '_blank');
+            
+            // Mostrar toast de confirmación
+            mostrarToast('success', 'WhatsApp abierto', `Contactando a ${nombreProveedor} vía WhatsApp`);
         }
 
         // Animación de carga para las estadísticas
@@ -1189,26 +1232,24 @@ if (isset($_GET['mensaje'])) {
                 }, index * 150);
             });
 
-            // Animación de carga para las filas de la tabla
-            const rows = document.querySelectorAll('.jm-tabla tbody tr');
-            rows.forEach((row, index) => {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(-20px)';
+            // Animación de carga para las tarjetas de proveedores
+            const cards = document.querySelectorAll('.jm-proveedor-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
                 setTimeout(() => {
-                    row.style.transition = 'all 0.5s ease';
-                    row.style.opacity = '1';
-                    row.style.transform = 'translateX(0)';
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
                 }, (index * 100) + 800);
             });
 
             // Mostrar mensaje de bienvenida
             setTimeout(() => {
-                if (totalVentas === 0) {
-                    mostrarToast('info', 'Sistema listo', 'Bienvenido al sistema de ventas. ¡Comienza a registrar tus primeras ventas!');
-                } else if (ventasHoy > 0) {
-                    mostrarToast('success', '¡Buen día!', `Llevas ${ventasHoy} venta(s) realizadas hoy. ¡Sigue así!`);
-                } else {
-                    mostrarToast('info', 'Nuevo día', 'Es un nuevo día para hacer ventas. ¡Mucho éxito!');
+                if (totalProveedores === 0) {
+                    mostrarToast('info', 'Sistema listo', 'Bienvenido al sistema de proveedores. ¡Comienza agregando tu primer proveedor!');
+                } else if (totalProveedores > 0) {
+                    mostrarToast('success', '¡Excelente!', `Tienes ${totalProveedores} proveedor(es) registrado(s). ¡Tu red de proveedores está creciendo!`);
                 }
             }, 1500);
         });

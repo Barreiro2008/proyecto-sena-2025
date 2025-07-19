@@ -1,8 +1,8 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'admin') {
-    header("Location: index.php"); 
+    header("Location: ../index.php"); 
     exit();
 }
 $stmt = $pdo->prepare("SELECT id, usuario, email, rol, fecha_registro FROM usuarios WHERE id != :id_admin");
@@ -733,7 +733,7 @@ if (isset($_GET['error'])) {
             </div>
         <?php endif; ?>
 
-        <a href="index.php" class="jm-btn-volver">
+        <a href="../index.php" class="jm-btn-volver">
             <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
 

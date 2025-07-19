@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 
 if (!isset($_SESSION['usuario'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -862,7 +862,7 @@ if (!empty($_SESSION['carrito'])) {
         </div>
 
         <div class="jm-contenedor-botones">
-            <a href="agregar_producto.php" class="btn-agregar">
+            <a href="../agregar/agregar_producto.php" class="btn-agregar">
                 <i class="fas fa-plus"></i> Agregar Producto
             </a>
         </div>
@@ -919,7 +919,7 @@ if (!empty($_SESSION['carrito'])) {
                                     <form method="post" style="display:inline;">
                                         <input type="hidden" name="producto_id" value="<?php echo htmlspecialchars($producto['id']); ?>">
                                         <input type="number" name="cantidad" value="1" min="1" class="cantidad-input">
-                                        <button type="submit" name="agregar_carrito" class="btn-accion btn-agregar-carrito">
+                                        <button type="submit" name="../agregar/agregar_carrito" class="btn-accion btn-agregar-carrito">
                                             <i class="fas fa-shopping-cart"></i> Agregar
                                         </button>
                                     </form>
@@ -986,7 +986,7 @@ if (!empty($_SESSION['carrito'])) {
             </div>
         <?php endif; ?>
 
-        <a href="index.php" class="btn-agregar" style="margin-top: 30px;">
+        <a href="../index.php" class="btn-agregar" style="margin-top: 30px;">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
 
