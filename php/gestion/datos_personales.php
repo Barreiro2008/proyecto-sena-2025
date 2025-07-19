@@ -521,9 +521,7 @@ if (!$datos_usuario) {
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/warehouse.png" alt="icono almacen">
                 Almacén
             </li>
-            <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
                 <li><a href="gestion_producto.php" class="jm-link"><i class="fas fa-box-open mr-2"></i> Gestión producto</a></li>
-            <?php endif; ?>
             <li><a href="gestion_lote.php" class="jm-link"><i class="fas fa-cubes mr-2"></i> Gestión lote</a></li>
 
             <li class="jm-menu-title">
