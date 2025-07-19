@@ -716,13 +716,11 @@ try {
         <div class="jm-accesos-rapidos">
             <h3>Accesos Rápidos</h3>
             <div class="jm-acciones-grid">
-                <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] === 'admin'): ?>
                     <a href="gestion_producto.php" class="jm-accion-card">
                         <div class="jm-accion-icon"><i class="fas fa-box-open"></i></div>
                         <div class="jm-accion-titulo">Gestión de Productos</div>
                         <div class="jm-accion-desc">Administrar inventario y productos</div>
                     </a>
-                <?php endif; ?>
                 <a href="gestion_lote.php" class="jm-accion-card">
                     <div class="jm-accion-icon"><i class="fas fa-cubes"></i></div>
                     <div class="jm-accion-titulo">Gestión de Lotes</div>
