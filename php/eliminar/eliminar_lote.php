@@ -1,12 +1,12 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 if (!isset($_SESSION['usuario']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'admin')) {
-    header("Location: index.php"); 
+    header("Location: ../index.php"); 
     exit();
 }
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: gestion_lote.php?error=id_invalido");
+    header("Location: ../gestion/gestion_lote.php?error=id_invalido");
     exit();
 }
 
@@ -18,17 +18,17 @@ try {
     $stmt_delete->execute();
     if ($stmt_delete->rowCount() > 0) {
         $mensaje = "Lote eliminado exitosamente.";
-        header("Location: gestion_lote.php?mensaje=" . urlencode($mensaje));
+        header("Location: ../gestion/gestion_lote.php?mensaje=" . urlencode($mensaje));
     } else {
         $error_message = "No se encontró el lote con el ID especificado.";
-        header("Location: gestion_lote.php?error=" . urlencode($error_message));
+        header("Location: ../gestion/gestion_lote.php?error=" . urlencode($error_message));
     }
 
     exit();
 
 } catch (PDOException $e) {
     $error_message = "Error al eliminar el lote: " . $e->getMessage();
-    header("Location: gestion_lote.php?error=" . urlencode($error_message));
+    header("Location: ../gestion/gestion_lote.php?error=" . urlencode($error_message));
     exit();
 }
 ?>

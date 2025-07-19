@@ -1,8 +1,8 @@
 <?php
 session_start();
-include 'conexion.php';
+include '../conexion.php';
 if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit();
 }
 $stmt = $pdo->prepare("SELECT usuario, email, rol, fecha_registro FROM usuarios WHERE id = :id");
@@ -11,7 +11,7 @@ $stmt->execute();
 $datos_usuario = $stmt->fetch();
 
 if (!$datos_usuario) {
-    header("Location: logout.php");
+    header("Location: ../logout.php");
     exit();
 }
 ?>
@@ -628,7 +628,7 @@ if (!$datos_usuario) {
             </div>
         </div>
 
-        <a href="index.php" class="jm-btn-volver">
+        <a href="../index.php" class="jm-btn-volver">
             <i class="fas fa-arrow-left"></i> Volver al Inicio
         </a>
 
