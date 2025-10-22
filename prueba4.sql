@@ -166,7 +166,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `password`, `rol`, `nombre`, `email`, `fecha_registro`) VALUES
-(1, 'chaime', '$2y$10$L3sg9evVn93voZqnAILBveOOJWdl.ZnWiUPIsilVwrQdOlVDTPflK', 'admin', 'chaime', 'chaime@chaime.com', '');
+(1, 'ADMIN', '$2y$10$2vZSeYwD5KscYqz5Q.sfk.jHxeowUzhedoU5.2iowGoVHTf2HuQ0.', 'admin', 'ADMIN', 'admin@gmail.com', '');
 
 -- --------------------------------------------------------
 
