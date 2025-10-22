@@ -679,7 +679,7 @@ if (isset($_GET['error'])) {
                                 </td>
                                 <td class="fecha-cell"><?php echo htmlspecialchars(date('d/m/Y', strtotime($usuario['fecha_registro']))); ?></td>
                                 <td class="jm-gestion-acciones">
-                                    <a href="editar_usuario.php?id=<?php echo htmlspecialchars($usuario['id']); ?>" class="btn-accion btn-editar">
+                                    <a href="editar_usuario.php?id=$usuario <?php echo htmlspecialchars($usuario['id']); ?>" class="btn-accion btn-editar">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
                                     <a href="eliminar_usuario.php?id=<?php echo htmlspecialchars($usuario['id']); ?>" 

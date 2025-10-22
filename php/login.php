@@ -63,20 +63,20 @@ unset($_SESSION['error_login']);
                 opacity: 0;
             }
         }
-        .product:nth-child(1)  { left: 5%;   animation-delay: 0s;   background-image: url('../imagenes/m1.png'); }
-        .product:nth-child(2)  { left: 15%;  animation-delay: 3s;   background-image: url('../imagenes/m2.png'); }
-        .product:nth-child(3)  { left: 25%;  animation-delay: 6s;   background-image: url('../imagenes/m3.jpg'); }
-        .product:nth-child(4)  { left: 35%;  animation-delay: 2s;   background-image: url('../imagenes/m4.jpg'); }
-        .product:nth-child(5)  { left: 45%;  animation-delay: 4s;   background-image: url('../imagenes/m5.jpg'); }
-        .product:nth-child(6)  { left: 55%;  animation-delay: 7s;   background-image: url('../imagenes/m6.jpg'); }
-        .product:nth-child(7)  { left: 65%;  animation-delay: 1s;   background-image: url('../imagenes/m7.jpg'); }
-        .product:nth-child(8)  { left: 75%;  animation-delay: 5s;   background-image: url('../imagenes/m8.jpg'); }
-        .product:nth-child(9)  { left: 85%;  animation-delay: 8s;   background-image: url('../imagenes/m9.jpg'); }
-        .product:nth-child(10) { left: 95%;  animation-delay: 9s;   background-image: url('../imagenes/m10.jpg'); }
-        .product:nth-child(11) { left: 10%;  animation-delay: 6s;   background-image: url('../imagenes/m11.jpg'); }
-        .product:nth-child(12) { left: 50%;  animation-delay: 1.5s; background-image: url('../imagenes/m12.jpg'); }
-        .product:nth-child(13) { left: 60%;  animation-delay: 2.5s; background-image: url('../imagenes/m13.jpg'); }
-        .product:nth-child(14) { left: 70%;  animation-delay: 3.5s; background-image: url('../imagenes/m14.jpg'); }
+        .product:nth-child(1)  { left: 5%;   animation-delay: 0s;   background-image: url('../imagenes/m1,1.png'); }
+        .product:nth-child(2)  { left: 15%;  animation-delay: 3s;   background-image: url('../imagenes/m2,1.png'); }
+        .product:nth-child(3)  { left: 25%;  animation-delay: 6s;   background-image: url('../imagenes/m3.png'); }
+        .product:nth-child(4)  { left: 35%;  animation-delay: 2s;   background-image: url('../imagenes/m4.png'); }
+        .product:nth-child(5)  { left: 45%;  animation-delay: 4s;   background-image: url('../imagenes/m5.png'); }
+        .product:nth-child(6)  { left: 55%;  animation-delay: 7s;   background-image: url('../imagenes/m6.png'); }
+        .product:nth-child(7)  { left: 65%;  animation-delay: 1s;   background-image: url('../imagenes/m7.png'); }
+        .product:nth-child(8)  { left: 75%;  animation-delay: 5s;   background-image: url('../imagenes/m8.png'); }
+        .product:nth-child(9)  { left: 85%;  animation-delay: 8s;   background-image: url('../imagenes/m9.png'); }
+        .product:nth-child(10) { left: 95%;  animation-delay: 9s;   background-image: url('../imagenes/m10.png'); }
+        .product:nth-child(11) { left: 10%;  animation-delay: 6s;   background-image: url('../imagenes/m11.png'); }
+        .product:nth-child(12) { left: 50%;  animation-delay: 1.5s; background-image: url('../imagenes/m12.png'); }
+        .product:nth-child(13) { left: 60%;  animation-delay: 2.5s; background-image: url('../imagenes/m13.png'); }
+        .product:nth-child(14) { left: 70%;  animation-delay: 3.5s; background-image: url('../imagenes/m14.png'); }
 
         /* Caja de Login */
         #app {
